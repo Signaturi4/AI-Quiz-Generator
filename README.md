@@ -97,6 +97,7 @@ The API is queried. After playing with the available parameters, I found leaving
 ## Signup Links
 
 Users can sign up using special invitation code links:
+
 - **Sales Team**: `https://your-domain.com/?code=SALES`
 - **Hostess Team**: `https://your-domain.com/?code=HOSTESS`
 
