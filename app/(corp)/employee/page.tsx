@@ -168,7 +168,14 @@ export default async function EmployeeDashboardPage() {
     if (questionPool) {
       console.log(`[Auto-Assignment] Found question pool:`, questionPool);
 
-      let certification = null;
+      let certification: {
+        id: string;
+        code: string;
+        title: string;
+        description: string | null;
+        duration_minutes: number | null;
+        passing_threshold: number;
+      } | null = null;
       const { data: existingCert, error: certError } = await client
         .from("certifications")
         .select(

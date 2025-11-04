@@ -1,12 +1,13 @@
 import { requireAdmin } from "../../../../lib/auth/requireAdmin";
-import { createServerClient } from "../../../../lib/supabase/server";
+import { createSupabaseServerComponentClient } from "../../../../lib/supabase/server";
 
 async function getCertificationAttempts() {
-  const supabase = await createServerClient();
-  
+  const supabase = createSupabaseServerComponentClient();
+
   const { data, error } = await supabase
     .from("attempts")
-    .select(`
+    .select(
+      `
       id,
       submitted_at,
       score,
@@ -15,7 +16,8 @@ async function getCertificationAttempts() {
       profile_id,
       certifications(title),
       profiles(display_name, email)
-    `)
+    `
+    )
     .not("submitted_at", "is", null)
     .order("submitted_at", { ascending: false });
 
@@ -25,9 +27,9 @@ async function getCertificationAttempts() {
   }
 
   // Fetch next eligible dates from assignments
-  const profileIds = [...new Set(data.map(a => a.profile_id))];
-  const certIds = [...new Set(data.map(a => a.certification_id))];
-  
+  const profileIds = [...new Set(data.map((a) => a.profile_id))];
+  const certIds = [...new Set(data.map((a) => a.certification_id))];
+
   const { data: assignments } = await supabase
     .from("assignments")
     .select("profile_id, certification_id, next_eligible_at")
@@ -35,20 +37,23 @@ async function getCertificationAttempts() {
     .in("certification_id", certIds);
 
   const assignmentMap = new Map(
-    (assignments || []).map(a => [
+    (assignments || []).map((a) => [
       `${a.profile_id}-${a.certification_id}`,
-      a.next_eligible_at
+      a.next_eligible_at,
     ])
   );
 
-  return data.map(attempt => ({
+  return data.map((attempt) => ({
     attemptId: attempt.id,
-    employee: attempt.profiles?.display_name || attempt.profiles?.email || "Unknown",
+    employee:
+      attempt.profiles?.display_name || attempt.profiles?.email || "Unknown",
     certification: attempt.certifications?.title || "Unknown",
     submittedAt: attempt.submitted_at,
     score: attempt.score || 0,
     passed: attempt.passed || false,
-    nextEligible: assignmentMap.get(`${attempt.profile_id}-${attempt.certification_id}`) || null,
+    nextEligible:
+      assignmentMap.get(`${attempt.profile_id}-${attempt.certification_id}`) ||
+      null,
   }));
 }
 
@@ -65,9 +70,9 @@ const formatDate = (value) => {
 
 export default async function ReportsPage() {
   await requireAdmin();
-  
+
   const sampleRows = await getCertificationAttempts();
-  
+
   return (
     <div className="space-y-8">
       <header className="space-y-2">
@@ -78,7 +83,9 @@ export default async function ReportsPage() {
             className="h-12 w-12 flex-shrink-0 rounded-lg object-cover mt-1"
           />
           <div className="flex-1">
-        <h2 className="text-3xl font-semibold text-white">Certification Reports</h2>
+            <h2 className="text-3xl font-semibold text-white">
+              Certification Reports
+            </h2>
             <p className="max-w-2xl text-sm text-white">
               Explore outcomes, retake eligibility, and compliance status across
               teams.
@@ -102,13 +109,22 @@ export default async function ReportsPage() {
             </thead>
             <tbody>
               {sampleRows.map((row) => (
-                <tr key={row.attemptId} className="border-t border-nuanu-grey-dark/20">
+                <tr
+                  key={row.attemptId}
+                  className="border-t border-nuanu-grey-dark/20"
+                >
                   <td className="px-3 py-3 font-medium text-foreground">
                     {row.employee}
                   </td>
-                  <td className="px-3 py-3 text-foreground/80">{row.certification}</td>
-                  <td className="px-3 py-3 text-muted-foreground">{formatDate(row.submittedAt)}</td>
-                  <td className="px-3 py-3 text-foreground">{formatPercentage(row.score)}</td>
+                  <td className="px-3 py-3 text-foreground/80">
+                    {row.certification}
+                  </td>
+                  <td className="px-3 py-3 text-muted-foreground">
+                    {formatDate(row.submittedAt)}
+                  </td>
+                  <td className="px-3 py-3 text-foreground">
+                    {formatPercentage(row.score)}
+                  </td>
                   <td className="px-3 py-3">
                     <span
                       className={`rounded-full border px-3 py-1 text-xs font-semibold ${
@@ -120,7 +136,9 @@ export default async function ReportsPage() {
                       {row.passed ? "Passed" : "Failed"}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-muted-foreground">{formatDate(row.nextEligible)}</td>
+                  <td className="px-3 py-3 text-muted-foreground">
+                    {formatDate(row.nextEligible)}
+                  </td>
                 </tr>
               ))}
             </tbody>
