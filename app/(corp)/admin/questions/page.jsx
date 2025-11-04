@@ -15,7 +15,7 @@ function formatDate(value) {
 
 export default async function QuestionBankPage() {
   await requireAdmin();
-  
+
   const { service } = getServerQuestionBankService();
   const pools = await service.listPools();
 
@@ -39,10 +39,12 @@ export default async function QuestionBankPage() {
             className="h-12 w-12 flex-shrink-0 rounded-lg object-cover mt-1"
           />
           <div className="flex-1">
-            <h2 className="text-3xl font-semibold text-nuanu-beige-light">Question Bank</h2>
+            <h2 className="text-3xl font-semibold text-nuanu-beige-light">
+              Question Bank
+            </h2>
             <p className="max-w-2xl text-sm text-nuanu-beige-dark">
-              Maintain version-controlled question pools. Updates here propagate to
-              future exam runs while preserving historical attempts.
+              Maintain version-controlled question pools. Updates here propagate
+              to future exam runs while preserving historical attempts.
             </p>
             <div className="mt-2 text-xs text-nuanu-beige-dark">
               <p>• Pools available: {summaries.length}</p>
@@ -57,8 +59,8 @@ export default async function QuestionBankPage() {
           <div className="flex flex-col items-start justify-center gap-3 rounded-xl border border-dashed border-nuanu-grey-dark/30 bg-muted p-6 text-sm text-muted-foreground">
             <p className="text-foreground">No question pools found.</p>
             <p>
-              Use the seeding script (`npm run supabase:seed`) or the &ldquo;Generate
-              Test&rdquo; workflow to create the initial pools.
+              Use the seeding script (`npm run supabase:seed`) or the
+              &ldquo;Generate Test&rdquo; workflow to create the initial pools.
             </p>
           </div>
         ) : (

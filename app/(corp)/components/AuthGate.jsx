@@ -39,7 +39,7 @@ export default function AuthGate({ children }) {
 
   useEffect(() => {
     if (isLoading) return;
-    
+
     if (!session) return;
 
     const { role, category } = access;
