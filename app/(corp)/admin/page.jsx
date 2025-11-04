@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { requireAdmin } from "../../../lib/auth/requireAdmin";
 
+export const dynamic = "force-dynamic";
+
 const highlightCards = [
   {
     title: "Upcoming Retakes",

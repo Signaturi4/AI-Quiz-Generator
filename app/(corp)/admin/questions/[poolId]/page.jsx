@@ -83,7 +83,7 @@ export default async function QuestionPoolDetail({ params, searchParams }) {
           <p className="text-xs uppercase tracking-[0.3em] text-slate-300/60">
             Question Pool
           </p>
-          <h2 className="mt-1 text-3xl font-semibold text-white">{pool.name}</h2>
+          <h2 className="mt-1 text-3xl font-semibold">{pool.name}</h2>
           {pool.description && (
             <p className="mt-2 max-w-2xl text-sm text-slate-200/70">
               {pool.description}
@@ -104,14 +104,14 @@ export default async function QuestionPoolDetail({ params, searchParams }) {
               href={`/quiz?certification=${certification.code}`}
               className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
             >
-              <span className="text-white">Start Test</span>
+              Start Test
             </Link>
           )}
           <Link
             href="/admin/questions"
             className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:border-slate-100/40"
           >
-            <span className="text-white">← Back to Question Bank</span>
+            ← Back to Question Bank
           </Link>
         </div>
       </div>

@@ -76,13 +76,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
-    return NextResponse.json({ error: "Invitation code has expired." }, { status: 400 });
-  }
-
-  // Get role and category from invitation code
-  const role = invitation.role || "employee";
-  const category = invitation.category || null;
+  // Get role and category from invitation code (codes never expire)
+  const invitationData = invitation as any;
+  const role = invitationData.role || "employee";
+  const category = invitationData.category || null;
   const certificationCode = category ? CATEGORY_TO_CERTIFICATION[category.toLowerCase()] : null;
 
   const displayName = `${firstName} ${lastName}`.trim();
@@ -127,8 +124,9 @@ export async function POST(request: NextRequest) {
   const userId = createResult.user.id;
 
   try {
-    const { error: userRecordError } = await adminClient.from("users").upsert(
-      {
+    const { error: userRecordError } = await (adminClient as any)
+      .from("users")
+      .upsert({
         id: userId,
         email,
         first_name: firstName,
@@ -136,9 +134,7 @@ export async function POST(request: NextRequest) {
         role,
         category,
         updated_at: new Date().toISOString(),
-      },
-      { onConflict: "id" }
-    );
+      }, { onConflict: "id" });
 
     if (userRecordError) {
       throw userRecordError;
@@ -146,13 +142,13 @@ export async function POST(request: NextRequest) {
 
     // Only mark invitation code as used if it's not a static code
     if (!isStaticCode) {
-      const { error: invitationUpdateError } = await adminClient
-        .from("invitation_codes")
-        .update({
-          used_at: new Date().toISOString(),
-          used_by: userId,
-        })
-        .eq("code", invitationCode);
+    const { error: invitationUpdateError } = await (adminClient as any)
+      .from("invitation_codes")
+      .update({
+        used_at: new Date().toISOString(),
+        used_by: userId,
+      })
+      .eq("code", invitationCode);
 
       if (invitationUpdateError) {
         throw invitationUpdateError;
@@ -171,14 +167,17 @@ export async function POST(request: NextRequest) {
       }
 
       if (certification) {
-        const { error: assignmentError } = await adminClient.from("assignments").insert({
-          id: randomUUID(),
-          profile_id: userId,
-          certification_id: certification.id,
-          status: "pending",
-          assigned_at: new Date().toISOString(),
-          next_eligible_at: new Date().toISOString(),
-        });
+        const certData = certification as any;
+        const { error: assignmentError } = await (adminClient as any)
+          .from("assignments")
+          .insert({
+            id: randomUUID(),
+            profile_id: userId,
+            certification_id: certData.id,
+            status: "pending",
+            assigned_at: new Date().toISOString(),
+            next_eligible_at: new Date().toISOString(),
+          });
 
         if (assignmentError) {
           throw assignmentError;

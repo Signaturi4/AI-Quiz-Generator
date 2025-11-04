@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
   const { data: profile, error: profileError } = await client
     .from("users")
-    .select("id, role, category, first_name, last_name, email, assigned_pool_version_id")
+    .select("id, role, category, first_name, last_name, email")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -145,37 +145,7 @@ export async function POST(request: NextRequest) {
   }
 
   const service = createQuestionBankService(client);
-  
-  // Check if user has an assigned pool version
-  let poolVersion;
-  if (profile.assigned_pool_version_id) {
-    console.log(`[Quiz API] User has assigned version: ${profile.assigned_pool_version_id}`);
-    
-    const { data: assignedVersion, error: versionError } = await client
-      .from("question_pool_versions")
-      .select("*")
-      .eq("id", profile.assigned_pool_version_id)
-      .eq("pool_id", certification.question_pool_id)
-      .eq("status", "published")
-      .maybeSingle();
-    
-    if (versionError) {
-      console.error("[Quiz API] Error fetching assigned version:", versionError);
-    }
-    
-    if (assignedVersion) {
-      console.log(`[Quiz API] Using assigned version ${assignedVersion.version_number}`);
-      poolVersion = assignedVersion;
-    } else {
-      console.warn(`[Quiz API] Assigned version ${profile.assigned_pool_version_id} not found or not published for this pool. Falling back to latest.`);
-    }
-  }
-  
-  // Fall back to latest published version if no assigned version
-  if (!poolVersion) {
-    console.log(`[Quiz API] No assigned version, using latest published version`);
-    poolVersion = await service.getLatestPublishedVersion(certification.question_pool_id);
-  }
+  const poolVersion = await service.getLatestPublishedVersion(certification.question_pool_id);
 
   if (!poolVersion) {
     return new Response(JSON.stringify({ error: "No published version found" }), {
@@ -367,17 +337,8 @@ export async function PUT(request: NextRequest) {
     console.error(assignmentUpdateError);
   }
 
-  // Get certification code
-  const { data: certification } = await client
-    .from("certifications")
-    .select("code")
-    .eq("id", attempt.certification_id)
-    .maybeSingle();
-
   return new Response(
     JSON.stringify({
-      attemptId: attempt.id,
-      certificationCode: certification?.code || null,
       score,
       passed,
       correctCount,

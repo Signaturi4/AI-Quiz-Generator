@@ -1,6 +1,4 @@
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
 
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
@@ -94,8 +92,6 @@ export default async function EmployeeDashboardPage() {
   }
 
   const userId = user.id;
-  console.log("[Employee Page] Authenticated user ID:", userId);
-  console.log("[Employee Page] User email:", user.email);
 
   const { data: profile, error: profileError } = await client
     .from("users")
@@ -208,7 +204,9 @@ export default async function EmployeeDashboardPage() {
             "[Auto-Assignment] Service role client not configured - check SUPABASE_SERVICE_ROLE_KEY"
           );
         } else {
-          const { data: newCert, error: createError } = await serviceClient
+          const { data: newCert, error: createError } = await (
+            serviceClient as any
+          )
             .from("certifications")
             .insert({
               code: certificationCode,
@@ -269,7 +267,7 @@ export default async function EmployeeDashboardPage() {
             const now = new Date();
             const dueAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-            const { error: insertError } = await serviceClient
+            const { error: insertError } = await (serviceClient as any)
               .from("assignments")
               .insert({
                 profile_id: userId,
@@ -497,7 +495,7 @@ export default async function EmployeeDashboardPage() {
                   ) : (
                     <Link
                       href={actionHref}
-                      className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
+                      className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
                     >
                       {status.actionLabel}
                     </Link>

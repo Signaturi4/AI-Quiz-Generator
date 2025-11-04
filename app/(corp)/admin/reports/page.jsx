@@ -1,77 +1,32 @@
 import { requireAdmin } from "../../../../lib/auth/requireAdmin";
-import { createSupabaseServerComponentClient } from "../../../../lib/supabase/server";
 
-async function getCertificationAttempts() {
-  const supabase = createSupabaseServerComponentClient();
+export const dynamic = "force-dynamic";
 
-  const { data, error } = await supabase
-    .from("attempts")
-    .select(
-      `
-      id,
-      submitted_at,
-      score,
-      passed,
-      certification_id,
-      profile_id,
-      certifications(title),
-      profiles(display_name, email)
-    `
-    )
-    .not("submitted_at", "is", null)
-    .order("submitted_at", { ascending: false });
-
-  if (error) {
-    console.error("Failed to fetch certification attempts:", error);
-    return [];
-  }
-
-  // Fetch next eligible dates from assignments
-  const profileIds = [...new Set(data.map((a) => a.profile_id))];
-  const certIds = [...new Set(data.map((a) => a.certification_id))];
-
-  const { data: assignments } = await supabase
-    .from("assignments")
-    .select("profile_id, certification_id, next_eligible_at")
-    .in("profile_id", profileIds)
-    .in("certification_id", certIds);
-
-  const assignmentMap = new Map(
-    (assignments || []).map((a) => [
-      `${a.profile_id}-${a.certification_id}`,
-      a.next_eligible_at,
-    ])
-  );
-
-  return data.map((attempt) => ({
-    attemptId: attempt.id,
-    employee:
-      attempt.profiles?.display_name || attempt.profiles?.email || "Unknown",
-    certification: attempt.certifications?.title || "Unknown",
-    submittedAt: attempt.submitted_at,
-    score: attempt.score || 0,
-    passed: attempt.passed || false,
-    nextEligible:
-      assignmentMap.get(`${attempt.profile_id}-${attempt.certification_id}`) ||
-      null,
-  }));
-}
+const sampleRows = [
+  {
+    attemptId: "att-001",
+    employee: "Amara Putri",
+    certification: "Sales Certification",
+    submittedAt: "2024-11-01",
+    score: 0.8,
+    passed: true,
+    nextEligible: "2024-12-01",
+  },
+  {
+    attemptId: "att-002",
+    employee: "Dewa Adi",
+    certification: "Hostess Certification",
+    submittedAt: "2024-10-28",
+    score: 0.6,
+    passed: false,
+    nextEligible: "2024-11-27",
+  },
+];
 
 const formatPercentage = (value) => `${Math.round(value * 100)}%`;
 
-const formatDate = (value) => {
-  if (!value) return "—";
-  return new Intl.DateTimeFormat("en", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(value));
-};
-
 export default async function ReportsPage() {
   await requireAdmin();
-
-  const sampleRows = await getCertificationAttempts();
 
   return (
     <div className="space-y-8">
@@ -83,10 +38,10 @@ export default async function ReportsPage() {
             className="h-12 w-12 flex-shrink-0 rounded-lg object-cover mt-1"
           />
           <div className="flex-1">
-            <h2 className="text-3xl font-semibold text-white">
+            <h2 className="text-3xl font-semibold text-nuanu-beige-light">
               Certification Reports
             </h2>
-            <p className="max-w-2xl text-sm text-white">
+            <p className="max-w-2xl text-sm text-nuanu-beige-dark">
               Explore outcomes, retake eligibility, and compliance status across
               teams.
             </p>
@@ -120,7 +75,7 @@ export default async function ReportsPage() {
                     {row.certification}
                   </td>
                   <td className="px-3 py-3 text-muted-foreground">
-                    {formatDate(row.submittedAt)}
+                    {row.submittedAt}
                   </td>
                   <td className="px-3 py-3 text-foreground">
                     {formatPercentage(row.score)}
@@ -137,7 +92,7 @@ export default async function ReportsPage() {
                     </span>
                   </td>
                   <td className="px-3 py-3 text-muted-foreground">
-                    {formatDate(row.nextEligible)}
+                    {row.nextEligible}
                   </td>
                 </tr>
               ))}

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -75,7 +75,8 @@ const QuizPage = () => {
 
         if (!response.ok) {
           const payload = await response.json();
-          const errorMessage = payload.details || payload.error || "Failed to start quiz";
+          const errorMessage =
+            payload.details || payload.error || "Failed to start quiz";
           setError(errorMessage);
           throw new Error(errorMessage);
         }
@@ -88,7 +89,7 @@ const QuizPage = () => {
         setSelectedChoice(null);
       } catch (err) {
         console.error("Quiz init error", err);
-        if (err instanceof Error && err.name !== 'AbortError') {
+        if (err instanceof Error && err.name !== "AbortError") {
           setError(err.message);
         }
       } finally {
@@ -105,14 +106,23 @@ const QuizPage = () => {
     scaleX.set(progress);
   }, [progress, scaleX]);
 
-  const currentQuestion = useMemo(() => questions[currentIndex], [questions, currentIndex]);
+  const currentQuestion = useMemo(
+    () => questions[currentIndex],
+    [questions, currentIndex]
+  );
 
   const handleChoiceSelect = (choiceIndex: number) => {
     if (isSubmitting) return;
     setSelectedChoice(choiceIndex);
   };
 
-  const submitAttempt = (finalResponses: { questionId: string; choiceIndex: number; correct: boolean }[]) => {
+  const submitAttempt = (
+    finalResponses: {
+      questionId: string;
+      choiceIndex: number;
+      correct: boolean;
+    }[]
+  ) => {
     if (!attemptId) return;
 
     startSubmit(async () => {
@@ -137,14 +147,8 @@ const QuizPage = () => {
         }
 
         const result = await response.json();
-        // Redirect to certificate page
-        if (result.attemptId && result.certificationCode) {
-          router.push(`/employee/${result.certificationCode}/result?attempt=${result.attemptId}`);
-        } else {
-          console.error("Missing attemptId or certificationCode in response", result);
-          // Fallback to employee dashboard
-          router.push(`/employee`);
-        }
+        // Redirect to the certification result page
+        router.push(`/employee/${certification}/result?attempt=${attemptId}`);
       } catch (error) {
         console.error("Attempt submission failed", error);
       }
@@ -183,7 +187,9 @@ const QuizPage = () => {
       ) : error ? (
         <div className="mx-auto max-w-2xl space-y-6 pt-8">
           <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-6 shadow-md">
-            <h2 className="text-xl font-semibold text-destructive">⚠️ Unable to Start Quiz</h2>
+            <h2 className="text-xl font-semibold text-destructive">
+              ⚠️ Unable to Start Quiz
+            </h2>
             <p className="mt-3 text-sm text-foreground">{error}</p>
             <div className="mt-6 flex gap-3">
               <button
@@ -215,14 +221,17 @@ const QuizPage = () => {
               Sales Certification Assessment
             </p>
             <h1 className="text-2xl font-semibold text-foreground">
-              Question {questions.length ? currentIndex + 1 : 0} of {questions.length}
+              Question {questions.length ? currentIndex + 1 : 0} of{" "}
+              {questions.length}
             </h1>
           </header>
 
           {currentQuestion ? (
             <div className="space-y-6">
               <section className="gradient-nuanu-card rounded-2xl border border-nuanu-grey-dark/30 p-6 shadow-md">
-                <h2 className="text-lg font-semibold text-foreground">{currentQuestion.prompt}</h2>
+                <h2 className="text-lg font-semibold text-foreground">
+                  {currentQuestion.prompt}
+                </h2>
                 <div className="mt-6 grid gap-3">
                   {currentQuestion.choices.map((choice, index) => {
                     const isSelected = selectedChoice === index;
@@ -247,7 +256,8 @@ const QuizPage = () => {
 
               <div className="flex items-center justify-between">
                 <p className="text-xs text-muted-foreground">
-                  Answer each question in order. You cannot return to previous questions.
+                  Answer each question in order. You cannot return to previous
+                  questions.
                 </p>
                 <button
                   type="button"
@@ -259,13 +269,16 @@ const QuizPage = () => {
                       : "bg-primary text-primary-foreground hover:bg-primary/90"
                   }`}
                 >
-                  {currentIndex === questions.length - 1 ? "Submit Assessment" : "Next Question"}
+                  {currentIndex === questions.length - 1
+                    ? "Submit Assessment"
+                    : "Next Question"}
                 </button>
               </div>
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-nuanu-grey-dark/30 bg-card p-6 text-sm text-muted-foreground">
-              No questions are available for this assessment. Please contact an administrator.
+              No questions are available for this assessment. Please contact an
+              administrator.
             </div>
           )}
 

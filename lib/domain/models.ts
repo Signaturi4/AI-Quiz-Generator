@@ -76,7 +76,7 @@ export class User {
   toInsert(): Insert<"users"> {
     return {
       id: this.id,
-      email: this.email ?? undefined,
+      email: this.email || "",
       first_name: this.firstName ?? undefined,
       last_name: this.lastName ?? undefined,
       role: this.role,

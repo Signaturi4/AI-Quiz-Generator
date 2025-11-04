@@ -85,19 +85,21 @@ export default function AuthGate({ children }) {
         return;
       }
 
-      if (isEmployeeRoute || isQuizRoute) {
-        // Employee is on allowed route, let them stay
-        if (isQuizRoute) {
-          const allowed = EMPLOYEE_CATEGORY_TO_CERT[category ?? ""];
-          if (!allowed || certificationParam !== allowed) {
-            router.replace("/employee");
-            return;
-          }
-        }
+      if (isEmployeeRoute) {
         return;
       }
 
-      // Only redirect if not already on an employee route
+      if (isQuizRoute) {
+        const allowed = EMPLOYEE_CATEGORY_TO_CERT[category ?? ""];
+
+        if (!allowed || certificationParam !== allowed) {
+          router.replace("/employee");
+          return;
+        }
+
+        return;
+      }
+
       router.replace("/employee");
       return;
     }

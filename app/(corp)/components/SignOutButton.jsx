@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSupabaseAuth } from "../../../contexts/supabase-auth-provider";
 
 export default function SignOutButton() {
   const { signOut, isLoading } = useSupabaseAuth();
-  const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
 
   const handleSignOut = async () => {
@@ -15,10 +13,6 @@ export default function SignOutButton() {
     try {
       setSigningOut(true);
       await signOut();
-      // Clear any client-side cache
-      router.refresh();
-      // Redirect to login
-      router.push("/corp/redirect");
     } catch (err) {
       console.error("Sign-out error:", err);
     } finally {

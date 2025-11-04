@@ -28,24 +28,6 @@ const VARIATIONS_PER_CERTIFICATION = 10;
 const QUESTIONS_PER_VARIATION = 10;
 
 const INVITATION_CODES = [
-  // Static codes that always work (can be reused, never expire)
-  {
-    code: "SALES",
-    role: "employee",
-    category: "sales",
-    notes: "Static sales invitation code (reusable, never expires)",
-    expires_at: null,
-    is_static: true,
-  },
-  {
-    code: "HOSTESS",
-    role: "employee",
-    category: "hostess",
-    notes: "Static hostess invitation code (reusable, never expires)",
-    expires_at: null,
-    is_static: true,
-  },
-  // Legacy codes (one-time use)
   {
     code: "NUANU-SALES-7G4XQ",
     role: "employee",
@@ -973,34 +955,15 @@ async function seedInvitationCodes() {
       category: entry.category ?? null,
       notes: entry.notes ?? null,
       expires_at: entry.expires_at ?? null,
-      // Static codes: keep existing used_at/used_by, or set to null if new
-      // For static codes, we want to reset them to allow reuse
-      used_at: entry.is_static ? null : undefined,
-      used_by: entry.is_static ? null : undefined,
+      used_at: null,
+      used_by: null,
     };
 
-    // For static codes, always reset used_at and used_by to allow reuse
-    if (entry.is_static) {
-      const { error: updateError } = await adminClient
-        .from("invitation_codes")
-        .upsert(
-          {
-            ...payload,
-            used_at: null,
-            used_by: null,
-          },
-          { onConflict: "code" }
-        );
-      
-      if (updateError) throw updateError;
-    } else {
-      // For regular codes, only update if not exists
-      const { error } = await adminClient
-        .from("invitation_codes")
-        .upsert(payload, { onConflict: "code" });
+    const { error } = await adminClient
+      .from("invitation_codes")
+      .upsert(payload, { onConflict: "code" });
 
-      if (error) throw error;
-    }
+    if (error) throw error;
   }
 }
 

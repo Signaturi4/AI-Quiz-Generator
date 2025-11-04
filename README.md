@@ -94,15 +94,6 @@ The API is queried. After playing with the available parameters, I found leaving
 - Run locally: `npm run dev` (default at http://localhost:3000)
 - Lint before shipping: `npm run lint`
 
-## Signup Links
-
-Users can sign up using special invitation code links:
-
-- **Sales Team**: `https://your-domain.com/?code=SALES`
-- **Hostess Team**: `https://your-domain.com/?code=HOSTESS`
-
-See [INVITATION_LINKS.md](./INVITATION_LINKS.md) for detailed instructions on creating and sharing signup links.
-
 ## Data & Configuration
 
 - Quiz topics: `app/constants/topics.js`; arrays keyed by language; include `'Random'` as first entry for dynamic prompts
