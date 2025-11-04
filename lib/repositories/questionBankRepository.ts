@@ -73,6 +73,26 @@ export class QuestionBankRepository {
     return (data ?? []).map(QuestionItem.fromRecord);
   }
 
+  async listAllQuestionsInPool(poolId: string): Promise<QuestionItem[]> {
+    // First get all version IDs for this pool
+    const versions = await this.listPoolVersions(poolId);
+    const versionIds = versions.map((v) => v.id);
+
+    if (versionIds.length === 0) {
+      return [];
+    }
+
+    // Get all questions from all versions in this pool
+    const { data, error } = await this.client
+      .from("questions")
+      .select("*")
+      .in("pool_version_id", versionIds)
+      .order("order_index", { ascending: true });
+
+    if (error) throw error;
+    return (data ?? []).map(QuestionItem.fromRecord);
+  }
+
   async insertQuestionPool(pool: QuestionPool): Promise<QuestionPool> {
     const payload: QuestionPoolInsert = pool.toInsert();
 
@@ -126,15 +146,54 @@ export class QuestionBankRepository {
     return QuestionItem.fromRecord(data);
   }
 
+  async getQuestion(questionId: string): Promise<QuestionItem | null> {
+    const { data, error } = await this.client
+      .from("questions")
+      .select("*")
+      .eq("id", questionId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data ? QuestionItem.fromRecord(data) : null;
+  }
+
   async updateQuestion(question: QuestionItem): Promise<QuestionItem> {
+    const updatePayload = question.toUpdate();
+    
+    console.log("[QuestionBankRepository] Updating question:", {
+      id: question.id,
+      payload: updatePayload,
+    });
+    
     const { data, error } = await (this.client as any)
       .from("questions")
-      .update(question.toUpdate())
+      .update(updatePayload)
       .eq("id", question.id)
       .select("*")
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("[QuestionBankRepository] Update error:", {
+        error,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        questionId: question.id,
+        payload: updatePayload,
+      });
+      throw error;
+    }
+    
+    if (!data) {
+      throw new Error(`Question ${question.id} not found after update`);
+    }
+    
+    console.log("[QuestionBankRepository] Update successful:", {
+      id: data.id,
+      updated_at: data.updated_at,
+    });
+    
     return QuestionItem.fromRecord(data);
   }
 
@@ -145,6 +204,30 @@ export class QuestionBankRepository {
       .eq("id", questionId);
 
     if (error) throw error;
+  }
+
+  async deleteVersion(versionId: string): Promise<void> {
+    // Delete all questions in the version first (they should cascade, but doing it explicitly)
+    const { error: questionsError } = await (this.client as any)
+      .from("questions")
+      .delete()
+      .eq("pool_version_id", versionId);
+
+    if (questionsError) {
+      console.error("[QuestionBankRepository] Error deleting questions:", questionsError);
+      throw questionsError;
+    }
+
+    // Delete the version
+    const { error: versionError } = await (this.client as any)
+      .from("question_pool_versions")
+      .delete()
+      .eq("id", versionId);
+
+    if (versionError) {
+      console.error("[QuestionBankRepository] Error deleting version:", versionError);
+      throw versionError;
+    }
   }
 
   async getLatestPublishedVersion(poolId: string): Promise<QuestionPoolVersion | null> {

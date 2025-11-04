@@ -7,17 +7,21 @@ import {
 
 import { Database } from "./database.types";
 
-const config = {
-  cookies,
-  headers,
+export const createSupabaseServerComponentClient = () => {
+  const cookieStore = cookies();
+  return createServerComponentClient<Database>({ cookies: () => cookieStore });
 };
 
-export const createSupabaseServerComponentClient = () =>
-  createServerComponentClient<Database>(config);
+export const createSupabaseRouteHandlerClient = () => {
+  const cookieStore = cookies();
+  return createRouteHandlerClient<Database>({
+    cookies: () => cookieStore,
+  });
+};
 
-export const createSupabaseRouteHandlerClient = () =>
-  createRouteHandlerClient<Database>(config);
-
-export const createSupabaseServerActionClient = () =>
-  createServerActionClient<Database>(config);
-
+export const createSupabaseServerActionClient = () => {
+  const cookieStore = cookies();
+  return createServerActionClient<Database>({
+    cookies: () => cookieStore,
+  });
+};

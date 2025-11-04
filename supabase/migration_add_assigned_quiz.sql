@@ -20,4 +20,3 @@ CREATE INDEX IF NOT EXISTS users_assigned_pool_version_idx ON public.users(assig
 
 COMMENT ON COLUMN public.users.assigned_pool_version_id IS 'Tracks which specific quiz version (10-question variation) is assigned to this user';
 
-

@@ -5,7 +5,9 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerActionClient } from "../../../../lib/supabase/server";
 import { createQuestionBankService } from "../../../../lib/services/questionBankService";
 
-async function requireAdmin(client: ReturnType<typeof createSupabaseServerActionClient>) {
+async function requireAdmin(
+  client: ReturnType<typeof createSupabaseServerActionClient>
+) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -71,7 +73,12 @@ export async function upsertQuestionAction(formData: FormData) {
   }
 
   const tagsRaw = formData.get("tags")?.toString()?.trim();
-  const tags = tagsRaw ? tagsRaw.split(",").map((tag) => tag.trim()).filter(Boolean) : null;
+  const tags = tagsRaw
+    ? tagsRaw
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+    : null;
 
   const questionId = formData.get("questionId")?.toString() || undefined;
 
@@ -143,3 +150,26 @@ export async function publishVersionAction(formData: FormData) {
   revalidatePath(`/admin/questions/${poolId}`);
 }
 
+export async function deleteVersionAction(formData: FormData) {
+  const poolId = formData.get("poolId")?.toString();
+  const versionId = formData.get("versionId")?.toString();
+
+  if (!poolId || !versionId) {
+    throw new Error("Missing identifiers");
+  }
+
+  const client = createSupabaseServerActionClient();
+  await requireAdmin(client);
+
+  const service = createQuestionBankService(client);
+
+  try {
+    await service.deleteVersion(versionId);
+    console.log("[deleteVersionAction] Success:", versionId);
+  } catch (error) {
+    console.error("[deleteVersionAction] Error:", error);
+    throw error;
+  }
+
+  revalidatePath(`/admin/questions/${poolId}`);
+}

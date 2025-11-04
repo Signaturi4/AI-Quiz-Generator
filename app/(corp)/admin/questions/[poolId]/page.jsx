@@ -7,6 +7,7 @@ import { getServerQuestionBankService } from "../../../../../lib/services/server
 import { requireAdmin } from "../../../../../lib/auth/requireAdmin";
 import QuestionManager from "./QuestionManager";
 import VersionActions from "./VersionActions";
+import AllQuestionsManager from "./AllQuestionsManager";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -34,9 +35,10 @@ async function getCertificationForPool(client, poolId) {
 
 export default async function QuestionPoolDetail({ params, searchParams }) {
   await requireAdmin();
-  
+
   const { poolId } = params;
   const selectedVersion = searchParams?.version;
+  const showAllQuestions = searchParams?.view === "all";
 
   const { client, service } = getServerQuestionBankService();
   const result = await service.getPoolWithVersions(poolId);
@@ -51,7 +53,8 @@ export default async function QuestionPoolDetail({ params, searchParams }) {
   const effectiveVersionId = selectedVersion ?? versions[0]?.id ?? null;
 
   const versionData =
-    effectiveVersionId && (await service.getVersionWithQuestions(effectiveVersionId));
+    effectiveVersionId &&
+    (await service.getVersionWithQuestions(effectiveVersionId));
 
   const versionList = versions.map((version) => ({
     id: version.id,
@@ -62,19 +65,38 @@ export default async function QuestionPoolDetail({ params, searchParams }) {
     publishedAt: version.publishedAt,
   }));
 
-  const selectedVersionMeta = versionList.find((version) => version.id === effectiveVersionId);
+  const selectedVersionMeta = versionList.find(
+    (version) => version.id === effectiveVersionId
+  );
 
-  const questions = versionData?.questions.map((question) => ({
-    id: question.id,
-    topic: question.topic,
-    prompt: question.prompt,
-    choices: question.choices,
-    answerIndex: question.answerIndex,
-    explanation: question.explanation,
-    difficulty: question.difficulty,
-    tags: question.tags,
-    orderIndex: question.orderIndex,
-  })) ?? [];
+  const questions =
+    versionData?.questions.map((question) => ({
+      id: question.id,
+      topic: question.topic,
+      prompt: question.prompt,
+      choices: question.choices,
+      answerIndex: question.answerIndex,
+      explanation: question.explanation,
+      difficulty: question.difficulty,
+      tags: question.tags,
+      orderIndex: question.orderIndex,
+    })) ?? [];
+
+  // Get all questions in the pool if showing all questions
+  const allQuestions = showAllQuestions
+    ? (await service.getAllQuestionsInPool(poolId)).map((question) => ({
+        id: question.id,
+        topic: question.topic,
+        prompt: question.prompt,
+        choices: question.choices,
+        answerIndex: question.answerIndex,
+        explanation: question.explanation,
+        difficulty: question.difficulty,
+        tags: question.tags,
+        orderIndex: question.orderIndex,
+        poolVersionId: question.poolVersionId,
+      }))
+    : [];
 
   return (
     <div className="space-y-8">
@@ -92,7 +114,8 @@ export default async function QuestionPoolDetail({ params, searchParams }) {
           {certification && (
             <div className="mt-4 space-y-1 text-xs text-slate-200/60">
               <p>
-                Linked certification: <span className="font-semibold">{certification.title}</span>
+                Linked certification:{" "}
+                <span className="font-semibold">{certification.title}</span>
               </p>
               <p>Code: {certification.code}</p>
             </div>
@@ -120,57 +143,81 @@ export default async function QuestionPoolDetail({ params, searchParams }) {
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-4">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-slate-300/60">
-              Versions
+              {showAllQuestions ? "All Questions" : "Versions"}
             </p>
             <p className="text-sm text-slate-200/70">
-              Select a version to inspect questions, clone drafts, or publish updates.
+              {showAllQuestions
+                ? "View and edit all questions across all versions in this pool."
+                : "Select a version to inspect questions, clone drafts, or publish updates."}
             </p>
           </div>
-          {versions.length > 0 && (
-            <VersionActions
-              poolId={pool.id}
-              latestVersionId={versions[0].id}
-              latestStatus={versions[0].status}
-            />
-          )}
+          <div className="flex items-center gap-3">
+            {!showAllQuestions && versions.length > 0 && (
+              <VersionActions
+                poolId={pool.id}
+                latestVersionId={versions[0].id}
+                latestStatus={versions[0].status}
+              />
+            )}
+            <Link
+              href={
+                showAllQuestions
+                  ? `/admin/questions/${pool.id}`
+                  : `/admin/questions/${pool.id}?view=all`
+              }
+              className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:border-sky-400/60 hover:text-sky-100"
+            >
+              {showAllQuestions ? "View Versions" : "View All Questions"}
+            </Link>
+          </div>
         </header>
 
-        <div className="mt-6 grid gap-3 md:grid-cols-2">
-          {versionList.map((version) => {
-            const href = `/admin/questions/${pool.id}?version=${version.id}`;
-            const isActive = version.id === effectiveVersionId;
+        {showAllQuestions ? (
+          <div className="mt-6">
+            <AllQuestionsManager
+              poolId={pool.id}
+              questions={allQuestions}
+              versions={versionList}
+            />
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            {versionList.map((version) => {
+              const href = `/admin/questions/${pool.id}?version=${version.id}`;
+              const isActive = version.id === effectiveVersionId;
 
-            return (
-              <Link
-                key={version.id}
-                href={href}
-                className={`rounded-xl border px-4 py-3 transition ${
-                  isActive
-                    ? "border-sky-400/60 bg-sky-400/10"
-                    : "border-white/10 bg-slate-950/40 hover:border-sky-400/40"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-300/60">
-                      Version {version.versionNumber}
-                    </p>
-                    <p className="text-sm text-slate-200/70">
-                      Status: {version.status}
-                    </p>
+              return (
+                <Link
+                  key={version.id}
+                  href={href}
+                  className={`rounded-xl border px-4 py-3 transition ${
+                    isActive
+                      ? "border-sky-400/60 bg-sky-400/10"
+                      : "border-white/10 bg-slate-950/40 hover:border-sky-400/40"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-slate-300/60">
+                        Version {version.versionNumber}
+                      </p>
+                      <p className="text-sm text-slate-200/70">
+                        Status: {version.status}
+                      </p>
+                    </div>
+                    <div className="text-right text-xs text-slate-300/60">
+                      <p>Created: {formatDate(version.createdAt)}</p>
+                      <p>Published: {formatDate(version.publishedAt)}</p>
+                    </div>
                   </div>
-                  <div className="text-right text-xs text-slate-300/60">
-                    <p>Created: {formatDate(version.createdAt)}</p>
-                    <p>Published: {formatDate(version.publishedAt)}</p>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </section>
 
-      {effectiveVersionId ? (
+      {!showAllQuestions && effectiveVersionId ? (
         <QuestionManager
           key={effectiveVersionId}
           poolId={pool.id}
@@ -179,12 +226,12 @@ export default async function QuestionPoolDetail({ params, searchParams }) {
           versionStatus={selectedVersionMeta?.status ?? "draft"}
           questions={questions}
         />
-      ) : (
+      ) : !showAllQuestions ? (
         <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-slate-200/70">
-          No versions available. Create a draft from the latest baseline to begin.
+          No versions available. Create a draft from the latest baseline to
+          begin.
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
-

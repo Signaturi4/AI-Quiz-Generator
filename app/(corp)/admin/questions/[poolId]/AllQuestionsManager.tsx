@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
   deleteQuestionAction,
-  deleteVersionAction,
-  publishVersionAction,
   upsertQuestionAction,
 } from "../actions";
 
@@ -24,214 +22,165 @@ type Question = {
   difficulty: string | null;
   tags: string[] | null;
   orderIndex: number | null;
+  poolVersionId: string;
 };
 
-type QuestionManagerProps = {
-  poolId: string;
-  versionId: string;
+type Version = {
+  id: string;
   versionNumber: number;
-  versionStatus?: string;
-  questions: Question[];
+  status: string;
 };
 
-export default function QuestionManager({
+type AllQuestionsManagerProps = {
+  poolId: string;
+  questions: Question[];
+  versions: Version[];
+};
+
+export default function AllQuestionsManager({
   poolId,
-  versionId,
-  versionNumber,
-  versionStatus = "draft",
   questions,
-}: QuestionManagerProps) {
+  versions,
+}: AllQuestionsManagerProps) {
   const router = useRouter();
-  const [activeEditor, setActiveEditor] = useState<string | "new" | null>(null);
-  const [isDeleting, startDeleteTransition] = useTransition();
-  const [isDeletingVersion, startDeleteVersionTransition] = useTransition();
-  const [isPublishing, startPublishTransition] = useTransition();
+  const [activeEditor, setActiveEditor] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
-  const handleDelete = (questionId: string) => {
-    const formData = new FormData();
-    formData.append("poolId", poolId);
-    formData.append("questionId", questionId);
-
-    startDeleteTransition(async () => {
-      await deleteQuestionAction(formData);
-      setActiveEditor(null);
-    });
+  const getVersionInfo = (versionId: string) => {
+    return versions.find((v) => v.id === versionId);
   };
 
-  const handlePublish = () => {
-    const formData = new FormData();
-    formData.append("poolId", poolId);
-    formData.append("versionId", versionId);
-
-    startPublishTransition(async () => {
-      await publishVersionAction(formData);
-    });
-  };
-
-  const handleDeleteVersion = () => {
+  const handleDelete = async (questionId: string) => {
     const confirmed = window.confirm(
-      `Are you sure you want to delete Version ${versionNumber}? This will permanently delete all questions in this version and cannot be undone.`
+      "Are you sure you want to delete this question? This action cannot be undone."
     );
 
     if (!confirmed) return;
 
+    setIsDeleting(true);
     const formData = new FormData();
     formData.append("poolId", poolId);
-    formData.append("versionId", versionId);
+    formData.append("questionId", questionId);
 
-    startDeleteVersionTransition(async () => {
-      try {
-        await deleteVersionAction(formData);
-        // Redirect back to the pool page after deletion
-        router.push(`/admin/questions/${poolId}`);
-      } catch (error) {
-        console.error("Failed to delete version:", error);
-        alert(
-          `Failed to delete version: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
-      }
-    });
+    try {
+      await deleteQuestionAction(formData);
+      setActiveEditor(null);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to delete question:", error);
+      alert(
+        `Failed to delete question: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
-    <section className="space-y-6 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-300/60">
-            Version Details
-          </p>
-          <p className="text-sm text-slate-200/70">
-            Version {versionNumber} • Status: {versionStatus}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 text-xs">
-          <button
-            onClick={() => setActiveEditor("new")}
-            className="rounded-lg border border-white/10 px-3 py-2 font-semibold text-slate-100 transition hover:border-sky-400/60 hover:text-sky-100"
-          >
-            + Add Question
-          </button>
-          <button
-            onClick={handleDeleteVersion}
-            disabled={isDeletingVersion}
-            className="rounded-lg border border-rose-400/40 px-3 py-2 font-semibold text-rose-200 transition hover:border-rose-300 hover:text-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isDeletingVersion ? "Deleting…" : "Delete Version"}
-          </button>
-          {versionStatus !== "published" && (
-            <button
-              onClick={handlePublish}
-              disabled={isPublishing}
-              className="rounded-lg border border-emerald-400/40 px-3 py-2 font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+    <div className="space-y-4">
+      {questions.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-white/10 bg-slate-950/40 p-6 text-sm text-slate-200/70">
+          No questions found in this pool.
+        </p>
+      ) : (
+        questions.map((question, index) => {
+          const versionInfo = getVersionInfo(question.poolVersionId);
+          const isEditing = activeEditor === question.id;
+
+          return (
+            <div
+              key={question.id}
+              className="rounded-xl border border-white/10 bg-slate-950/40 p-5"
             >
-              {isPublishing ? "Publishing…" : "Publish Version"}
-            </button>
-          )}
-        </div>
-      </header>
-
-      {activeEditor === "new" && (
-        <QuestionForm
-          key="new-question"
-          poolId={poolId}
-          versionId={versionId}
-          onClose={() => setActiveEditor(null)}
-        />
-      )}
-
-      <div className="space-y-4">
-        {questions.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-white/10 bg-slate-950/40 p-6 text-sm text-slate-200/70">
-            This version has no questions yet. Add questions to activate the
-            certification.
-          </p>
-        ) : (
-          questions.map((question, index) => {
-            const isEditing = activeEditor === question.id;
-            return (
-              <div
-                key={question.id}
-                className="rounded-xl border border-white/10 bg-slate-950/40 p-5"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="space-y-2">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-3">
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-300/60">
-                      Question {index + 1} • Topic: {question.topic}
+                      Question {index + 1}
                     </p>
-                    <h3 className="text-lg font-semibold text-white">
-                      {question.prompt}
-                    </h3>
-                    <ul className="space-y-1 text-sm text-slate-200/70">
-                      {question.choices.map((choice, choiceIndex) => (
-                        <li
-                          key={`${question.id}-${choiceIndex}`}
-                          className={
-                            choiceIndex === question.answerIndex
-                              ? "font-semibold text-emerald-300"
-                              : ""
-                          }
-                        >
-                          {choiceIndex + 1}. {choice.text}
-                        </li>
-                      ))}
-                    </ul>
-                    {question.explanation && (
-                      <p className="text-xs text-slate-300/60">
-                        Explanation: {question.explanation}
-                      </p>
+                    {versionInfo && (
+                      <span className="rounded-full bg-sky-400/20 px-2 py-1 text-xs text-sky-200">
+                        Version {versionInfo.versionNumber} ({versionInfo.status})
+                      </span>
                     )}
-                    {question.tags?.length ? (
-                      <p className="text-xs text-slate-300/60">
-                        Tags: {question.tags.join(", ")}
-                      </p>
-                    ) : null}
+                    <span className="text-xs text-slate-300/60">
+                      Topic: {question.topic}
+                    </span>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <button
-                      onClick={() =>
-                        setActiveEditor((current) =>
-                          current === question.id ? null : question.id
-                        )
-                      }
-                      className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:border-sky-400/60 hover:text-sky-100"
-                    >
-                      {isEditing ? "Cancel" : "Edit"}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(question.id)}
-                      disabled={isDeleting}
-                      className="rounded-lg border border-rose-400/40 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:border-rose-300 hover:text-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {isDeleting ? "Removing…" : "Delete"}
-                    </button>
-                  </div>
+                  <h3 className="text-lg font-semibold text-white">
+                    {question.prompt}
+                  </h3>
+                  <ul className="space-y-1 text-sm text-slate-200/70">
+                    {question.choices.map((choice, choiceIndex) => (
+                      <li
+                        key={`${question.id}-${choiceIndex}`}
+                        className={
+                          choiceIndex === question.answerIndex
+                            ? "font-semibold text-emerald-300"
+                            : ""
+                        }
+                      >
+                        {choiceIndex + 1}. {choice.text}
+                      </li>
+                    ))}
+                  </ul>
+                  {question.explanation && (
+                    <p className="text-xs text-slate-300/60">
+                      Explanation: {question.explanation}
+                    </p>
+                  )}
+                  {question.tags?.length ? (
+                    <p className="text-xs text-slate-300/60">
+                      Tags: {question.tags.join(", ")}
+                    </p>
+                  ) : null}
                 </div>
-
-                {isEditing && (
-                  <div className="mt-4 border-t border-white/10 pt-4">
-                    <QuestionForm
-                      poolId={poolId}
-                      versionId={versionId}
-                      question={question}
-                      onClose={() => setActiveEditor(null)}
-                    />
-                  </div>
-                )}
+                <div className="flex flex-col items-end gap-2">
+                  <button
+                    onClick={() =>
+                      setActiveEditor((current) =>
+                        current === question.id ? null : question.id
+                      )
+                    }
+                    className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-100 transition hover:border-sky-400/60 hover:text-sky-100"
+                  >
+                    {isEditing ? "Cancel" : "Edit"}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(question.id)}
+                    disabled={isDeleting}
+                    className="rounded-lg border border-rose-400/40 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:border-rose-300 hover:text-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isDeleting ? "Removing…" : "Delete"}
+                  </button>
+                </div>
               </div>
-            );
-          })
-        )}
-      </div>
-    </section>
+
+              {isEditing && (
+                <div className="mt-4 border-t border-white/10 pt-4">
+                  <QuestionForm
+                    poolId={poolId}
+                    versionId={question.poolVersionId}
+                    question={question}
+                    onClose={() => setActiveEditor(null)}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })
+      )}
+    </div>
   );
 }
 
 type QuestionFormProps = {
   poolId: string;
   versionId: string;
-  question?: Question;
+  question: Question;
   onClose?: () => void;
 };
 
@@ -257,8 +206,6 @@ function QuestionForm({
     typeof question?.orderIndex === "number" ? question.orderIndex : ""
   );
   const [isPending, setIsPending] = useState(false);
-
-  const isEdit = Boolean(question);
 
   const handleChoiceUpdate = (index: number, value: string) => {
     setChoices((prev) => {
@@ -458,9 +405,10 @@ function QuestionForm({
           disabled={isPending}
           className="rounded-lg border border-emerald-400/40 px-4 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isPending ? "Saving…" : isEdit ? "Save Changes" : "Create Question"}
+          {isPending ? "Saving…" : "Save Changes"}
         </button>
       </div>
     </form>
   );
 }
+

@@ -20,4 +20,3 @@ FROM public.question_pools p
 WHERE c.question_pool_id = p.id
   AND c.duration_minutes IS NULL;
 
-

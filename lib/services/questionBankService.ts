@@ -81,6 +81,10 @@ export class QuestionBankService {
     return { version, questions };
   }
 
+  async getAllQuestionsInPool(poolId: string): Promise<QuestionItem[]> {
+    return this.repository.listAllQuestionsInPool(poolId);
+  }
+
   async createQuestionPool(input: CreatePoolInput): Promise<{
     pool: QuestionPool;
     version: QuestionPoolVersion;
@@ -160,8 +164,35 @@ export class QuestionBankService {
   }
 
   async upsertQuestion(input: UpsertQuestionInput): Promise<QuestionItem> {
+    if (input.id) {
+      // Update existing question - fetch it first to preserve created_at
+      const existing = await this.repository.getQuestion(input.id);
+      if (!existing) {
+        throw new Error(`Question ${input.id} not found`);
+      }
+
+      // Update the existing question with new values
+      const updatedModel = new QuestionItem(
+        existing.id,
+        existing.poolVersionId,
+        input.topic,
+        input.prompt,
+        input.choices,
+        input.answerIndex,
+        input.explanation ?? null,
+        input.difficulty ?? null,
+        input.tags ?? null,
+        input.orderIndex ?? null,
+        existing.createdAt, // Preserve original created_at
+        new Date().toISOString() // Update updated_at
+      );
+
+      return this.repository.updateQuestion(updatedModel);
+    }
+
+    // Insert new question
     const baseRecord = {
-      id: input.id ?? randomUUID(),
+      id: randomUUID(),
       pool_version_id: input.poolVersionId,
       topic: input.topic,
       prompt: input.prompt,
@@ -176,10 +207,6 @@ export class QuestionBankService {
     };
 
     const model = QuestionItem.fromRecord(baseRecord);
-
-    if (input.id) {
-      return this.repository.updateQuestion(model);
-    }
     return this.repository.insertQuestion(model);
   }
 
@@ -197,6 +224,10 @@ export class QuestionBankService {
 
   async deleteQuestion(questionId: string) {
     return this.repository.deleteQuestion(questionId);
+  }
+
+  async deleteVersion(versionId: string): Promise<void> {
+    return this.repository.deleteVersion(versionId);
   }
 
   async getRandomQuestions(versionId: string, topic: string, limit: number) {
