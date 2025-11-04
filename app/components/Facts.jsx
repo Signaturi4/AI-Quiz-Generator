@@ -7,11 +7,9 @@ import { useTypewriter, Typewriter } from 'react-simple-typewriter'
 
 import { HiChevronRight } from 'react-icons/hi2'
 
-import { pickRandom } from '../utils'
-
-// const pickRandom = (arr) => {
-//     return arr[Math.floor(Math.random() * arr.length)]
-// }
+const pickRandom = (arr) => {
+    return arr[Math.floor(Math.random() * arr.length)]
+}
 
 const Facts = () => {
     const [fact, setFact] = useState(pickRandom(facts))
