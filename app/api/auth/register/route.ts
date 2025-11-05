@@ -151,20 +151,8 @@ export async function POST(request: NextRequest) {
       throw userRecordError;
     }
 
-    // Removed: Only mark invitation code as used if it's not a static code
-    // if (!isStaticCode) {
-    // const { error: invitationUpdateError } = await (adminClient as any)
-    //   .from("invitation_codes")
-    //   .update({
-    //     used_at: new Date().toISOString(),
-    //     used_by: userId,
-    //   })
-    //   .eq("code", invitationCode);
-
-    //   if (invitationUpdateError) {
-    //     throw invitationUpdateError;
-    //   }
-    // }
+    // The code block for updating invitation_codes has been removed to make them reusable.
+    // Previously, this section would update `used_at` and `used_by` fields.
 
     if (certificationCode) {
       const { data: certification, error: certificationError } =
