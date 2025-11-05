@@ -1,32 +1,59 @@
 import { requireAdmin } from "../../../../lib/auth/requireAdmin";
+import { createSupabaseServerComponentClient } from "../../../../lib/supabase/server";
 
 export const dynamic = "force-dynamic";
-
-const sampleRows = [
-  {
-    attemptId: "att-001",
-    employee: "Amara Putri",
-    certification: "Sales Certification",
-    submittedAt: "2024-11-01",
-    score: 0.8,
-    passed: true,
-    nextEligible: "2024-12-01",
-  },
-  {
-    attemptId: "att-002",
-    employee: "Dewa Adi",
-    certification: "Hostess Certification",
-    submittedAt: "2024-10-28",
-    score: 0.6,
-    passed: false,
-    nextEligible: "2024-11-27",
-  },
-];
 
 const formatPercentage = (value) => `${Math.round(value * 100)}%`;
 
 export default async function ReportsPage() {
   await requireAdmin();
+  const supabase = createSupabaseServerComponentClient();
+
+  const { data: assignments, error } = await supabase
+    .from("assignments")
+    .select(
+      `
+        id,
+        assigned_at,
+        due_at,
+        status,
+        profiles:profile_id (
+          first_name,
+          last_name
+        ),
+        certifications:certification_id (
+          title
+        ),
+        attempts:id(
+          submitted_at,
+          score,
+          passed
+        )
+      `
+    )
+    .order("assigned_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching assignments:", error);
+    return <p>Error loading reports.</p>;
+  }
+
+  const formattedAssignments = assignments.map((assignment) => {
+    const latestAttempt = assignment.attempts[0]; // Assuming attempts are ordered by submitted_at DESC if needed
+    return {
+      attemptId: assignment.id,
+      employee: `${assignment.profiles.first_name} ${assignment.profiles.last_name}`,
+      certification: assignment.certifications.title,
+      submittedAt: latestAttempt?.submitted_at
+        ? new Date(latestAttempt.submitted_at).toLocaleDateString()
+        : "N/A",
+      score: latestAttempt?.score || 0,
+      passed: latestAttempt?.passed || false,
+      nextEligible: assignment.next_eligible_at
+        ? new Date(assignment.next_eligible_at).toLocaleDateString()
+        : "N/A",
+    };
+  });
 
   return (
     <div className="space-y-8">
@@ -63,7 +90,7 @@ export default async function ReportsPage() {
               </tr>
             </thead>
             <tbody>
-              {sampleRows.map((row) => (
+              {formattedAssignments.map((row) => (
                 <tr
                   key={row.attemptId}
                   className="border-t border-nuanu-grey-dark/20"
