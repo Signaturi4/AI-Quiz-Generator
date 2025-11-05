@@ -5,7 +5,7 @@ import { createSupabaseServerActionClient } from "../../../lib/supabase/server";
 import { createQuestionBankService } from "../../../lib/services/questionBankService";
 import { QuestionItem } from "../../../lib/domain/models";
 
-const QUESTIONS_PER_ATTEMPT = 10;
+const QUESTIONS_PER_ATTEMPT = 40;
 const PASS_THRESHOLD = 0.7;
 const RETAKE_INTERVAL_DAYS = 30;
 
@@ -25,9 +25,12 @@ export async function POST(request: NextRequest) {
   const certificationCode = body?.certificationCode;
 
   if (!certificationCode) {
-    return new Response(JSON.stringify({ error: "Missing certification code" }), {
-      status: 400,
-    });
+    return new Response(
+      JSON.stringify({ error: "Missing certification code" }),
+      {
+        status: 400,
+      }
+    );
   }
 
   const { data: profile, error: profileError } = await client
@@ -49,8 +52,10 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  console.log(`[Quiz API] Looking for certification with code: ${certificationCode}`);
-  
+  console.log(
+    `[Quiz API] Looking for certification with code: ${certificationCode}`
+  );
+
   const { data: certification, error: certificationError } = await client
     .from("certifications")
     .select("*")
@@ -59,13 +64,18 @@ export async function POST(request: NextRequest) {
 
   if (certificationError) {
     console.error("[Quiz API] Certification query error:", certificationError);
-    return new Response(JSON.stringify({ error: "Failed to load certification" }), {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({ error: "Failed to load certification" }),
+      {
+        status: 500,
+      }
+    );
   }
 
   if (!certification) {
-    console.error(`[Quiz API] Certification "${certificationCode}" not found in database`);
+    console.error(
+      `[Quiz API] Certification "${certificationCode}" not found in database`
+    );
     return new Response(
       JSON.stringify({
         error: "Certification not found",
@@ -76,7 +86,9 @@ export async function POST(request: NextRequest) {
   }
 
   console.log(`[Quiz API] Found certification:`, certification);
-  console.log(`[Quiz API] Querying assignments for profile_id=${profile.id}, certification_id=${certification.id}`);
+  console.log(
+    `[Quiz API] Querying assignments for profile_id=${profile.id}, certification_id=${certification.id}`
+  );
 
   // Use .order().limit(1) instead of .maybeSingle() to handle duplicates gracefully
   const { data: assignments, error: assignmentError } = await client
@@ -91,16 +103,21 @@ export async function POST(request: NextRequest) {
 
   if (assignmentError) {
     console.error("[Quiz API] Assignment query error:", assignmentError);
-    return new Response(JSON.stringify({ error: "Failed to load assignment" }), {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({ error: "Failed to load assignment" }),
+      {
+        status: 500,
+      }
+    );
   }
 
   if (!assignment) {
     console.error(
       `[Quiz API] No assignment found for user ${profile.id} (${profile.email}) and certification ${certification.code} (${certification.id})`
     );
-    console.error(`[Quiz API] User category: ${profile.category}, role: ${profile.role}`);
+    console.error(
+      `[Quiz API] User category: ${profile.category}, role: ${profile.role}`
+    );
     return new Response(
       JSON.stringify({
         error: "No quiz assignment found",
@@ -124,7 +141,8 @@ export async function POST(request: NextRequest) {
     return new Response(
       JSON.stringify({
         error: "Already passed",
-        details: "You have already passed this certification. No retake needed.",
+        details:
+          "You have already passed this certification. No retake needed.",
       }),
       { status: 403 }
     );
@@ -145,12 +163,17 @@ export async function POST(request: NextRequest) {
   }
 
   const service = createQuestionBankService(client);
-  const poolVersion = await service.getLatestPublishedVersion(certification.question_pool_id);
+  const poolVersion = await service.getLatestPublishedVersion(
+    certification.question_pool_id
+  );
 
   if (!poolVersion) {
-    return new Response(JSON.stringify({ error: "No published version found" }), {
-      status: 409,
-    });
+    return new Response(
+      JSON.stringify({ error: "No published version found" }),
+      {
+        status: 409,
+      }
+    );
   }
 
   const topic = body?.topic ?? null;
@@ -169,9 +192,12 @@ export async function POST(request: NextRequest) {
       .eq("pool_version_id", poolVersion.id);
 
     if (allQuestionsError || !allQuestions) {
-      return new Response(JSON.stringify({ error: "Failed to load questions" }), {
-        status: 500,
-      });
+      return new Response(
+        JSON.stringify({ error: "Failed to load questions" }),
+        {
+          status: 500,
+        }
+      );
     }
 
     const shuffled = allQuestions.sort(() => Math.random() - 0.5);
@@ -280,7 +306,9 @@ export async function PUT(request: NextRequest) {
     });
   }
 
-  const answerMap = new Map(questions.map((question) => [question.id, question.answer_index]));
+  const answerMap = new Map(
+    questions.map((question) => [question.id, question.answer_index])
+  );
 
   let correctCount = 0;
 
@@ -347,4 +375,3 @@ export async function PUT(request: NextRequest) {
     { status: 200 }
   );
 }
-

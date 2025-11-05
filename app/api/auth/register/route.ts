@@ -51,22 +51,27 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if this is a static code that can be reused
-  const isStaticCode = invitationCode === "SALES" || invitationCode === "HOSTESS";
-  
+  const isStaticCode =
+    invitationCode === "SALES" || invitationCode === "HOSTESS";
+
   const invitationQuery = adminClient
     .from("invitation_codes")
     .select("*")
     .eq("code", invitationCode);
-  
+
   // Static codes can be reused, so don't filter by used_at
   if (!isStaticCode) {
     invitationQuery.is("used_at", null);
   }
-  
-  const { data: invitation, error: invitationError } = await invitationQuery.maybeSingle();
+
+  const { data: invitation, error: invitationError } =
+    await invitationQuery.maybeSingle();
 
   if (invitationError) {
-    return NextResponse.json({ error: invitationError.message }, { status: 500 });
+    return NextResponse.json(
+      { error: invitationError.message },
+      { status: 500 }
+    );
   }
 
   if (!invitation) {
@@ -80,7 +85,9 @@ export async function POST(request: NextRequest) {
   const invitationData = invitation as any;
   const role = invitationData.role || "employee";
   const category = invitationData.category || null;
-  const certificationCode = category ? CATEGORY_TO_CERTIFICATION[category.toLowerCase()] : null;
+  const certificationCode = category
+    ? CATEGORY_TO_CERTIFICATION[category.toLowerCase()]
+    : null;
 
   const displayName = `${firstName} ${lastName}`.trim();
 
@@ -101,18 +108,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { data: createResult, error: createError } = await adminClient.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: {
-      firstName,
-      lastName,
-      displayName,
-      role,
-      category,
-    },
-  });
+  const { data: createResult, error: createError } =
+    await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        firstName,
+        lastName,
+        displayName,
+        role,
+        category,
+      },
+    });
 
   if (createError || !createResult?.user) {
     return NextResponse.json(
@@ -126,41 +134,45 @@ export async function POST(request: NextRequest) {
   try {
     const { error: userRecordError } = await (adminClient as any)
       .from("users")
-      .upsert({
-        id: userId,
-        email,
-        first_name: firstName,
-        last_name: lastName,
-        role,
-        category,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "id" });
+      .upsert(
+        {
+          id: userId,
+          email,
+          first_name: firstName,
+          last_name: lastName,
+          role,
+          category,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "id" }
+      );
 
     if (userRecordError) {
       throw userRecordError;
     }
 
-    // Only mark invitation code as used if it's not a static code
-    if (!isStaticCode) {
-    const { error: invitationUpdateError } = await (adminClient as any)
-      .from("invitation_codes")
-      .update({
-        used_at: new Date().toISOString(),
-        used_by: userId,
-      })
-      .eq("code", invitationCode);
+    // Removed: Only mark invitation code as used if it's not a static code
+    // if (!isStaticCode) {
+    // const { error: invitationUpdateError } = await (adminClient as any)
+    //   .from("invitation_codes")
+    //   .update({
+    //     used_at: new Date().toISOString(),
+    //     used_by: userId,
+    //   })
+    //   .eq("code", invitationCode);
 
-      if (invitationUpdateError) {
-        throw invitationUpdateError;
-      }
-    }
+    //   if (invitationUpdateError) {
+    //     throw invitationUpdateError;
+    //   }
+    // }
 
     if (certificationCode) {
-      const { data: certification, error: certificationError } = await adminClient
-        .from("certifications")
-        .select("id")
-        .eq("code", certificationCode)
-        .maybeSingle();
+      const { data: certification, error: certificationError } =
+        await adminClient
+          .from("certifications")
+          .select("id")
+          .eq("code", certificationCode)
+          .maybeSingle();
 
       if (certificationError) {
         throw certificationError;
@@ -193,4 +205,3 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ success: true }, { status: 200 });
 }
-

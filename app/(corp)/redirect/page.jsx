@@ -19,7 +19,7 @@ export default function RedirectPage() {
 
     // Redirect based on user role from metadata
     const role = user.user_metadata?.role;
-    
+
     if (role === "admin") {
       router.replace("/admin");
     } else if (role === "employee") {

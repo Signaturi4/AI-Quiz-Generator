@@ -207,6 +207,8 @@ const QuizPage = () => {
             </div>
           </div>
         </div>
+      ) : questions.length === 0 ? (
+        <LoadingScreen responseStream="Loading questions…" />
       ) : (
         <div className="mx-auto max-w-3xl space-y-8 pt-8">
           <header className="space-y-1 text-center">
