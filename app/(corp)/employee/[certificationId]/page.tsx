@@ -27,7 +27,7 @@ export default async function CertificationIntroPage({ params }: Params) {
   } = await client.auth.getUser();
 
   if (!user) {
-    redirect("/corp/redirect");
+    redirect("/login");
   }
 
   const userId = user.id;

@@ -33,7 +33,7 @@ export default async function ResultPage({ params }: Params) {
   } = await client.auth.getUser();
 
   if (!user) {
-    redirect("/corp/redirect");
+    redirect("/login");
   }
 
   const userId = user.id;

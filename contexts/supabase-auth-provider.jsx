@@ -13,13 +13,16 @@ export function useSupabaseAuth() {
 
   const signIn = useCallback(
     async (email, password) => {
+      console.log("Supabase Auth: signIn called with", { email }); // Added log
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (signInError) {
+        console.error("Supabase Auth: signIn error:", signInError); // Added log
         throw signInError;
       }
+      console.log("Supabase Auth: signIn successful."); // Added log
     },
     [supabase]
   );
@@ -47,7 +50,7 @@ export function useSupabaseAuth() {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/redirect`,
+          redirectTo: `${window.location.origin}/api/auth/callback`,
         },
       });
       if (oauthError) {

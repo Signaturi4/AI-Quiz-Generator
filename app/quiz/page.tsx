@@ -125,13 +125,13 @@ const QuizPage = () => {
   ) => {
     if (!attemptId) return;
 
-    startSubmit(async () => {
-      try {
-        const response = await fetch("/api/quiz", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      startSubmit(async () => {
+        try {
+          const response = await fetch("/api/quiz", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
           body: JSON.stringify({
             attemptId,
             responses: finalResponses.map((response) => ({
@@ -139,21 +139,21 @@ const QuizPage = () => {
               choiceIndex: response.choiceIndex,
             })),
           }),
-        });
+          });
 
-        if (!response.ok) {
-          const errorPayload = await response.json();
-          throw new Error(errorPayload.error ?? "Failed to submit attempt");
-        }
+          if (!response.ok) {
+            const errorPayload = await response.json();
+            throw new Error(errorPayload.error ?? "Failed to submit attempt");
+          }
 
-        const result = await response.json();
+          const result = await response.json();
         // Redirect to the certification result page
         router.push(`/employee/${certification}/result?attempt=${attemptId}`);
-      } catch (error) {
-        console.error("Attempt submission failed", error);
-      }
-    });
-  };
+        } catch (error) {
+          console.error("Attempt submission failed", error);
+        }
+      });
+    };
 
   const handleAdvance = () => {
     if (selectedChoice === null || !currentQuestion) return;

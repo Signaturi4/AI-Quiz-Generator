@@ -11,8 +11,13 @@ export async function requireAdmin() {
     data: { user },
   } = await client.auth.getUser();
 
-  if (!user) {
-    redirect("/corp/redirect");
+  if (!user || user.user_metadata?.role !== "admin") {
+    console.warn(
+      "User is not an admin, redirecting. Role:",
+      user?.user_metadata?.role
+    );
+    // Redirect to login page instead of /corp/redirect
+    redirect("/login");
   }
 
   // Check user metadata first (fast)

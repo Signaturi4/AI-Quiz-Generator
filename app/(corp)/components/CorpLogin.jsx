@@ -66,19 +66,24 @@ export default function CorpLogin({ error: initialError = null }) {
       event.preventDefault();
       resetFeedback();
 
+      console.log("Attempting to sign in..."); // Added log
+
       const email = signInEmail.trim();
       const password = signInPassword;
 
       if (!email || !password) {
         setFormError(new Error("Email and password are required."));
+        console.error("Sign-in failed: Email or password missing."); // Added log
         return;
       }
 
       try {
         setIsSigningIn(true);
         await signIn(email, password);
+        console.log("Sign-in successful (or initiated)."); // Added log
       } catch (err) {
         setFormError(err instanceof Error ? err : new Error(String(err)));
+        console.error("Sign-in failed:", err); // Added log
       } finally {
         setIsSigningIn(false);
       }
@@ -159,9 +164,11 @@ export default function CorpLogin({ error: initialError = null }) {
               />
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-primary">
-              Nuanu Corp
-            </p>
-                <h1 className="text-2xl font-semibold text-foreground">Certification Control</h1>
+                  Nuanu Corp
+                </p>
+                <h1 className="text-2xl font-semibold text-foreground">
+                  Certification Control
+                </h1>
               </div>
             </div>
           </div>
@@ -178,8 +185,12 @@ export default function CorpLogin({ error: initialError = null }) {
 
         <section className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-foreground">{loginCopy.title}</h2>
-            <p className="text-sm text-muted-foreground">{loginCopy.description}</p>
+            <h2 className="text-xl font-semibold text-foreground">
+              {loginCopy.title}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {loginCopy.description}
+            </p>
           </div>
 
           <div className="inline-flex rounded-full bg-muted p-1 text-xs font-semibold text-muted-foreground">
@@ -289,17 +300,17 @@ export default function CorpLogin({ error: initialError = null }) {
 
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    value={signUpPassword}
-                    onChange={(event) => setSignUpPassword(event.target.value)}
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={signUpPassword}
+                  onChange={(event) => setSignUpPassword(event.target.value)}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                    placeholder="Create a password"
-                    required
-                    autoComplete="new-password"
-                  />
+                  placeholder="Create a password"
+                  required
+                  autoComplete="new-password"
+                />
               </div>
 
               <div className="space-y-2">

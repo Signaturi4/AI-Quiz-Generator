@@ -88,7 +88,7 @@ export default async function EmployeeDashboardPage() {
   } = await client.auth.getUser();
 
   if (!user) {
-    redirect("/corp/redirect");
+    redirect("/login");
   }
 
   const userId = user.id;
@@ -101,11 +101,11 @@ export default async function EmployeeDashboardPage() {
 
   if (profileError) {
     console.error("Failed to resolve profile", profileError);
-    redirect("/corp/redirect");
+    redirect("/login");
   }
 
   if (!profile) {
-    redirect("/corp/redirect");
+    redirect("/login");
   }
 
   if (profile.role === "admin") {
