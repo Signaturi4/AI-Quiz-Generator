@@ -24,8 +24,8 @@ const adminClient = createClient(SUPABASE_URL, SERVICE_KEY, {
   },
 });
 
-const VARIATIONS_PER_CERTIFICATION = 10;
-const QUESTIONS_PER_VARIATION = 10;
+const VARIATIONS_PER_CERTIFICATION = 1;
+const QUESTIONS_PER_VARIATION = 40;
 
 const INVITATION_CODES = [
   {
@@ -171,7 +171,7 @@ async function seedQuestionPoolVariations(poolId, baseQuestions, label) {
       .update({
         status: "published",
         notes: `${label} variation #${versionNumber}`,
-        published_at: version.published_at ?? new Date().toISOString(),
+        published_at: new Date().toISOString(), // Ensure published_at is always set to current time
       })
       .eq("id", version.id);
 
@@ -1115,8 +1115,53 @@ async function ensureAssignment({ profile_id, certification_id }) {
   return inserted;
 }
 
+async function cleanTables() {
+  console.log("🧹 Cleaning existing data...");
+
+  // Delete in reverse order of dependencies
+  try {
+    await adminClient.from("attempts").delete().gte("id", "");
+  } catch (err) {
+    // Ignore if table doesn't exist or is empty
+  }
+
+  try {
+    await adminClient.from("assignments").delete().gte("id", "");
+  } catch (err) {
+    // Ignore if table doesn't exist or is empty
+  }
+
+  try {
+    await adminClient.from("certifications").delete().gte("id", "");
+  } catch (err) {
+    // Ignore if table doesn't exist or is empty
+  }
+
+  try {
+    await adminClient.from("questions").delete().gte("id", "");
+  } catch (err) {
+    // Ignore if table doesn't exist or is empty
+  }
+
+  try {
+    await adminClient.from("question_pool_versions").delete().gte("id", "");
+  } catch (err) {
+    // Ignore if table doesn't exist or is empty
+  }
+
+  try {
+    await adminClient.from("question_pools").delete().gte("id", "");
+  } catch (err) {
+    // Ignore if table doesn't exist or is empty
+  }
+
+  console.log("✔️ cleaned tables");
+}
+
 async function main() {
   console.log("👷 Seeding Supabase data...");
+
+  await cleanTables();
 
   await seedInvitationCodes();
   console.log("✔️ seeded invitation codes");

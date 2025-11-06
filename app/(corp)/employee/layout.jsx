@@ -16,19 +16,16 @@ export default function EmployeeLayout({ children }) {
               <p className="text-xs uppercase tracking-[0.3em] text-primary">
                 Nuanu Workforce Academy
               </p>
-              <h1 className="mt-2 text-3xl font-semibold text-foreground">
-                My Certifications
+              <h1 className="mt-2 text-3xl font-semibold text-foreground md:text-4xl">
+                My Certification
               </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Track your progress, review results, and prepare for upcoming
-                assessments.
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground"></p>
             </div>
           </div>
         </header>
         <section>{children}</section>
         <div className="flex justify-end">
-          <div className="w-full max-w-[220px]">
+          <div className="w-full max-w-full md:max-w-[220px]">
             <SignOutButton />
           </div>
         </div>

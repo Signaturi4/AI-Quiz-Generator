@@ -256,10 +256,9 @@ const QuizPage = () => {
                 </div>
               </section>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between px-6">
                 <p className="text-xs text-muted-foreground">
-                  Answer each question in order. You cannot return to previous
-                  questions.
+                  You cannot return to previous questions.
                 </p>
                 <button
                   type="button"

@@ -29,7 +29,9 @@ export default function CertificateView({
 }: CertificateProps) {
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/certificates/${attemptId}`;
+  const shareUrl = `${
+    typeof window !== "undefined" ? window.location.origin : ""
+  }/certificates/${attemptId}`;
 
   const handleCopyLink = async () => {
     try {
@@ -70,7 +72,7 @@ export default function CertificateView({
             <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
               Certificate of {passed ? "Completion" : "Attempt"}
             </p>
-            <h1 className="mt-4 text-4xl font-bold text-foreground">
+            <h1 className="mt-4 text-4xl font-bold text-foreground md:text-5xl">
               {certificationTitle}
             </h1>
           </div>
@@ -98,7 +100,7 @@ export default function CertificateView({
           {/* Score Display */}
           <div className="mx-auto mt-8 max-w-md">
             <div className="rounded-2xl border border-nuanu-grey-dark/20 bg-muted p-6">
-              <div className="flex items-center justify-around">
+              <div className="flex items-center justify-center">
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground">Score</p>
                   <p
@@ -109,13 +111,7 @@ export default function CertificateView({
                     {percentage}%
                   </p>
                 </div>
-                <div className="h-16 w-px bg-nuanu-grey-dark/20"></div>
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">Correct Answers</p>
-                  <p className="mt-2 text-3xl font-semibold text-foreground">
-                    {correctCount} / {questionCount}
-                  </p>
-                </div>
+                {/* Removed Correct Answers Counter */}
               </div>
             </div>
           </div>
@@ -123,7 +119,9 @@ export default function CertificateView({
           {/* Footer */}
           <div className="mt-12 space-y-4">
             <div className="border-t border-nuanu-grey-dark/20 pt-6">
-              <p className="text-xs text-nuanu-grey-light">Certificate ID: {attemptId.slice(0, 8)}</p>
+              <p className="text-xs text-nuanu-grey-light">
+                Certificate ID: {attemptId.slice(0, 8)}
+              </p>
             </div>
           </div>
         </div>
@@ -137,7 +135,7 @@ export default function CertificateView({
         >
           ← Back to Dashboard
         </a>
-        
+
         <button
           onClick={handleCopyLink}
           className="rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground transition hover:bg-primary/90"
@@ -147,11 +145,11 @@ export default function CertificateView({
 
         {!passed && (
           <p className="w-full text-center text-sm text-muted-foreground">
-            You need at least 70% to pass. Contact your administrator for retake options.
+            You need at least 70% to pass. Contact your administrator for retake
+            options.
           </p>
         )}
       </div>
     </div>
   );
 }
-
