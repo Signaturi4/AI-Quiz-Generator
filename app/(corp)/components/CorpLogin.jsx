@@ -159,8 +159,8 @@ export default function CorpLogin({ error: initialError = null }) {
               />
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-primary">
-                  Nuanu Corp
-                </p>
+              Nuanu Corp
+            </p>
                 <h1 className="text-2xl font-semibold text-foreground">Certification Control</h1>
               </div>
             </div>
@@ -289,17 +289,17 @@ export default function CorpLogin({ error: initialError = null }) {
 
               <div className="space-y-2">
                 <label className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={signUpPassword}
-                  onChange={(event) => setSignUpPassword(event.target.value)}
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={signUpPassword}
+                    onChange={(event) => setSignUpPassword(event.target.value)}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  placeholder="Create a password"
-                  required
-                  autoComplete="new-password"
-                />
+                    placeholder="Create a password"
+                    required
+                    autoComplete="new-password"
+                  />
               </div>
 
               <div className="space-y-2">

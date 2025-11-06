@@ -182,7 +182,7 @@ async function seedQuestionPoolVariations(poolId, baseQuestions, label) {
 const SALES_QUESTIONS = [
   {
     topic: "general",
-    prompt: "What is Indonesia's global ranking by population?",
+    prompt: "What is Indonesia’s global ranking by population?",
     choices: ["3rd", "4th", "5th", "6th"],
     answer: 1,
     explanation: "Indonesia is the world's fourth-most populous country.",
@@ -190,7 +190,7 @@ const SALES_QUESTIONS = [
   {
     topic: "general",
     prompt:
-      "What is Indonesia's global ranking in terms of investment returns?",
+      "What is Indonesia’s global ranking in terms of investment returns?",
     choices: ["Top 3", "Top 10", "Top 20", "Top 50"],
     answer: 1,
     explanation:
@@ -450,9 +450,9 @@ const SALES_QUESTIONS = [
   },
   {
     topic: "crm",
-    prompt: "How do you change a stage in a client's card?",
+    prompt: "How do you change a stage in a client’s card?",
     choices: [
-      "Click 'Edit Info'",
+      "Click ‘Edit Info’",
       "Drag the card to another column",
       "Use CRM settings",
       "Ask a manager",
@@ -463,7 +463,7 @@ const SALES_QUESTIONS = [
   },
   {
     topic: "crm",
-    prompt: "How do you set a task in the client's card?",
+    prompt: "How do you set a task in the client’s card?",
     choices: [
       "Through Kommo task tab",
       "Send WhatsApp message",
@@ -478,14 +478,319 @@ const SALES_QUESTIONS = [
     topic: "crm",
     prompt: "What should be shown in the card name?",
     choices: [
-      "Client's name + Phone number",
+      "Client’s name + Phone number",
       "Only project name",
       "Country",
       "Manager name",
     ],
     answer: 0,
     explanation:
-      "Naming convention pairs the client's name with their phone number for clarity.",
+      "Naming convention pairs the client’s name with their phone number for clarity.",
+  },
+  {
+    topic: "crm",
+    prompt:
+      "What should you do if the message wasn’t delivered and the call didn’t go through?",
+    choices: [
+      "Do nothing",
+      "Report to team lead",
+      "Wait for client",
+      "Delete the lead",
+    ],
+    answer: 1,
+    explanation:
+      "If communication fails, report it to the team lead for further action.",
+  },
+  {
+    topic: "crm",
+    prompt: "How do you create a new client card?",
+    choices: [
+      "Ask administrator",
+      "Use “+ New Lead” in CRM",
+      "Send form in Notion",
+      "Add name to Excel",
+    ],
+    answer: 1,
+    explanation:
+      "New client cards are created using the “+ New Lead” function in the CRM.",
+  },
+  {
+    topic: "crm",
+    prompt: "How soon should you call a client on Day 1?",
+    choices: [
+      "immediately",
+      "Within 24 hours",
+      "Next day",
+      "After message reply",
+    ],
+    answer: 0,
+    explanation:
+      "Clients should be contacted immediately on Day 1 to maximize engagement.",
+  },
+  {
+    topic: "crm",
+    prompt: 'Which leads should be moved to the "In Progress" stage?',
+    choices: [
+      "All new leads",
+      "Only confirmed interest",
+      "Unresponsive leads",
+      "Closed leads",
+    ],
+    answer: 1,
+    explanation:
+      "Only leads with confirmed interest are moved to the In Progress stage.",
+  },
+  {
+    topic: "crm",
+    prompt: "When is a lead considered processed on Day 1?",
+    choices: [
+      "When you sent brochure",
+      "After call and note in CRM",
+      "When client reads message",
+      "After deposit",
+    ],
+    answer: 1,
+    explanation:
+      "A lead is processed on Day 1 after a call and a note in the CRM.",
+  },
+  {
+    topic: "crm",
+    prompt: "Are voice messages allowed in communication with clients?",
+    choices: ["Yes, always", "No", "Only on Telegram", "Only after agreement"],
+    answer: 1,
+    explanation:
+      "Voice messages are generally not allowed in client communication for professionalism.",
+  },
+  {
+    topic: "crm",
+    prompt: "Within what timeframe should client messages be answered?",
+    choices: ["24 hours", "6 hours", "15 minutes", "1 hour"],
+    answer: 2,
+    explanation:
+      "Client messages should be answered within 15 minutes to ensure timely support.",
+  },
+  {
+    topic: "tours",
+    prompt: "Where can you check spelling if unsure?",
+    choices: ["Google Docs", "Grammarly", "ChatGPT", "Notes app"],
+    answer: 1,
+    explanation:
+      "Grammarly is the recommended tool for checking spelling and grammar.",
+  },
+  {
+    topic: "tours",
+    prompt: "What are 5 common reasons clients object?",
+    choices: [
+      "Price, timing, trust, taxes, location",
+      "Weather, food, traffic, language, people",
+      "None",
+      "Only price",
+    ],
+    answer: 0,
+    explanation:
+      "Common client objections include price, timing, trust, taxes, and location.",
+  },
+  {
+    topic: "tours",
+    prompt: "What does an objection usually indicate?",
+    choices: [
+      "Client is not interested",
+      "Client needs more information",
+      "Client is angry",
+      "Client is ready to buy",
+    ],
+    answer: 1,
+    explanation:
+      "An objection usually signifies that the client requires more information or clarification.",
+  },
+  {
+    topic: "tours",
+    prompt: "What happens when the client has no more objections?",
+    choices: [
+      "They are ready to buy",
+      "They want to leave",
+      "They are confused",
+      "They need more info",
+    ],
+    answer: 0,
+    explanation:
+      "When all objections are addressed, the client is typically ready to proceed with a purchase.",
+  },
+  {
+    topic: "tours",
+    prompt: "How many steps are there in a perfect tour?",
+    choices: ["4", "6", "8", "10"],
+    answer: 2,
+    explanation: "A perfect tour consists of 8 carefully planned steps.",
+  },
+  {
+    topic: "tours",
+    prompt: "What is Step 2 of a tour?",
+    choices: [
+      "Meet at Nuanu gate",
+      "Show villa",
+      "Sign papers",
+      "Offer coffee",
+    ],
+    answer: 0,
+    explanation:
+      "Step 2 of the tour involves meeting the client at the Nuanu gate.",
+  },
+  {
+    topic: "tours",
+    prompt: "What does “pain” mean during a tour?",
+    choices: [
+      "Client’s needs or problem",
+      "Negative feedback",
+      "High price",
+      "Tour mistake",
+    ],
+    answer: 0,
+    explanation:
+      'During a tour, "pain" refers to the client’s specific needs or problems that the property can solve.',
+  },
+  {
+    topic: "tours",
+    prompt: "Why is it important to bring printed materials?",
+    choices: [
+      "Looks professional",
+      "Decoration only",
+      "Not important",
+      "For client’s signature",
+    ],
+    answer: 0,
+    explanation:
+      "Bringing printed materials enhances professionalism and provides tangible information to clients.",
+  },
+  {
+    topic: "tours",
+    prompt: "Which info is “stop info”?",
+    choices: [
+      "Construction delays or developer disputes",
+      "Prices",
+      "ROI",
+      "Availability",
+    ],
+    answer: 0,
+    explanation:
+      '"Stop info" includes critical details such as construction delays or developer disputes.',
+  },
+  {
+    topic: "zoom",
+    prompt: "How long before a Zoom meeting should you remind the client?",
+    choices: ["1 hour", "1 day", "5 minutes", "3 hours"],
+    answer: 0,
+    explanation:
+      "Clients should be reminded 1 hour before a Zoom meeting to ensure their attendance.",
+  },
+  {
+    topic: "zoom",
+    prompt: "What materials must be prepared for a Zoom call?",
+    choices: ["Project brochure and price list", "Lunch menu", "Gifts", "CV"],
+    answer: 0,
+    explanation:
+      "Essential materials for a Zoom call include the project brochure and price list.",
+  },
+  {
+    topic: "zoom",
+    prompt: "Where do you upload the video of a Zoom meeting?",
+    choices: ["Kommo CRM", "YouTube", "Telegram", "Google Drive"],
+    answer: 0,
+    explanation:
+      "Zoom meeting videos should be uploaded to Kommo CRM for record-keeping and follow-up.",
+  },
+  {
+    topic: "legal",
+    prompt: "What is the difference between Freehold and Leasehold?",
+    choices: [
+      "Ownership vs. long-term rental",
+      "Apartment vs. villa",
+      "Old vs. new",
+      "Land vs. building",
+    ],
+    answer: 0,
+    explanation:
+      "Freehold implies full ownership, while Leasehold is a long-term rental agreement.",
+  },
+  {
+    topic: "legal",
+    prompt: "Can a foreigner buy a villa?",
+    choices: [
+      "Yes, through PT PMA or leasehold",
+      "No",
+      "Only by marriage",
+      "Only with local partner",
+    ],
+    answer: 0,
+    explanation:
+      "Foreigners can acquire villas through PT PMA or leasehold agreements.",
+  },
+  {
+    topic: "legal",
+    prompt: "Is it guaranteed that Leasehold can be extended?",
+    choices: [
+      "Yes",
+      "No, only by agreement",
+      "Always automatic",
+      "With 5% fee",
+    ],
+    answer: 1,
+    explanation:
+      "Leasehold extensions are not guaranteed and depend on mutual agreement.",
+  },
+  {
+    topic: "legal",
+    prompt: "What does the Yellow Zone mean?",
+    choices: [
+      "Land suitable for residential use",
+      "Protected forest",
+      "Industrial area",
+      "Tourist-only zone",
+    ],
+    answer: 0,
+    explanation:
+      "A Yellow Zone designates land suitable for residential development.",
+  },
+  {
+    topic: "legal",
+    prompt: "What inheritance rights exist for real estate in Bali?",
+    choices: [
+      "Full inheritance with notary",
+      "No rights",
+      "Only for locals",
+      "Government owns it",
+    ],
+    answer: 0,
+    explanation:
+      "Full inheritance rights for real estate in Bali are established with a notary.",
+  },
+  {
+    topic: "taxes",
+    prompt: "What taxes must a property buyer pay in case of leasehold?",
+    choices: [
+      "10% VAT + 1% transfer tax",
+      "20% income tax",
+      "No taxes",
+      "Monthly tax",
+    ],
+    answer: 0,
+    explanation:
+      "Leasehold property buyers are subject to 10% VAT and a 1% transfer tax.",
+  },
+  {
+    topic: "resources",
+    prompt: "Where can you find the master file of all available units?",
+    choices: ["Notion", "Telegram", "WhatsApp", "Slack"],
+    answer: 0,
+    explanation:
+      "The master file for all available units is maintained in Notion.",
+  },
+  {
+    topic: "resources",
+    prompt: "Where can you find the bank details for deposits?",
+    choices: ["Notion", "Email", "CRM", "Invoice PDF"],
+    answer: 0,
+    explanation: "Bank details for deposits can be found in Notion.",
   },
 ];
 
@@ -505,35 +810,35 @@ const HOSTESS_QUESTIONS = [
     explanation: "The Nuanu masterplan covers about 44 hectares.",
   },
   {
-    topic: "sustainability",
+    topic: "general",
     prompt: "What percentage of Nuanu is a green zone?",
     choices: ["25%", "70%", "65%", "80%"],
     answer: 1,
     explanation: "Seventy percent of the site is reserved as green land.",
   },
   {
-    topic: "impact",
+    topic: "general",
     prompt: "What percentage is allocated to the Nuanu Social Fund?",
     choices: ["1%", "2%", "3%", "5%"],
     answer: 3,
     explanation: "Five percent of revenues flow to the Nuanu Social Fund.",
   },
   {
-    topic: "education",
+    topic: "general",
     prompt: "Is there a school in Nuanu?",
     choices: ["No", "Yes", "Only kindergarten", "Only university"],
     answer: 1,
     explanation: "The community includes an operating school.",
   },
   {
-    topic: "education",
+    topic: "general",
     prompt: "Is there a kindergarten in Nuanu?",
     choices: ["No", "Yes", "Planned", "Inside the school"],
     answer: 1,
     explanation: "Families have access to an on-site kindergarten.",
   },
   {
-    topic: "identity",
+    topic: "general",
     prompt: "What makes Nuanu unique?",
     choices: [
       "Only residential area",
@@ -546,21 +851,21 @@ const HOSTESS_QUESTIONS = [
       "Nuanu blends creative industries with sustainability and community living.",
   },
   {
-    topic: "access",
-    prompt: "How many gates or entrances does Nuanu have?",
+    topic: "general",
+    prompt: "How many gates/entrances does Nuanu have?",
     choices: ["1", "2", "3", "4"],
     answer: 2,
     explanation: "There are three official access gates to Nuanu.",
   },
   {
-    topic: "location",
+    topic: "general",
     prompt: "How far is Nuanu from Canggu?",
     choices: ["5 minutes", "15 minutes", "25 minutes", "1 hour"],
     answer: 1,
     explanation: "Travel time to Canggu is roughly fifteen minutes.",
   },
   {
-    topic: "identity",
+    topic: "general",
     prompt: "What type of city is Nuanu?",
     choices: ["Industrial", "Creative", "Financial", "Tech hub"],
     answer: 1,
@@ -657,7 +962,7 @@ const HOSTESS_QUESTIONS = [
       "It sells only land",
       "It represents all Nuanu projects directly",
       "It has no agents",
-      "It doesn't handle clients",
+      "It doesn’t handle clients",
     ],
     answer: 1,
     explanation:
@@ -711,7 +1016,8 @@ const HOSTESS_QUESTIONS = [
   },
   {
     topic: "art",
-    prompt: "Which project collaborates on the Stella Solaris art object?",
+    prompt:
+      "Which project has a collaboration with artists for an art object called Stella Solaris?",
     choices: ["Black Sands Oasis", "X Hotel", "The Sens", "Flower Estates"],
     answer: 0,
     explanation:
@@ -804,14 +1110,14 @@ const HOSTESS_QUESTIONS = [
       "Active listings include Black Sands Oasis, The Sens, and X Hotel.",
   },
   {
-    topic: "design",
+    topic: "sales",
     prompt: "Which project is inspired by Dune architecture?",
     choices: ["Origins", "Biom", "The Sens", "Flower Estates"],
     answer: 0,
     explanation: "Origins uses the same design cues as the Dune film sets.",
   },
   {
-    topic: "timeline",
+    topic: "sales",
     prompt: "Which property will be completed the soonest?",
     choices: [
       "Collection Vol.1",
@@ -823,21 +1129,21 @@ const HOSTESS_QUESTIONS = [
     explanation: "Collection Vol.1 has the nearest delivery date.",
   },
   {
-    topic: "pricing",
+    topic: "sales",
     prompt: "What is the entry price for Black Sands Oasis studios?",
     choices: ["$50K", "$109K", "$120K", "$150K"],
     answer: 1,
     explanation: "Studios start at approximately $109K.",
   },
   {
-    topic: "ownership",
+    topic: "sales",
     prompt: "Which projects offer Freehold ownership?",
     choices: ["Flower Estates", "Black Sands Oasis", "Biom", "Baza Kedungu"],
     answer: 0,
     explanation: "Freehold ownership is available at Flower Estates.",
   },
   {
-    topic: "ownership",
+    topic: "sales",
     prompt: "Which projects offer Leasehold?",
     choices: [
       "Black Sands Oasis",
@@ -847,6 +1153,219 @@ const HOSTESS_QUESTIONS = [
     ],
     answer: 0,
     explanation: "Black Sands Oasis is sold on a leasehold basis.",
+  },
+  {
+    topic: "sales",
+    prompt: "Which project guarantees ROI?",
+    choices: ["X Hotel", "The Sens", "Flower Estates", "Biom"],
+    answer: 0,
+    explanation: "X Hotel provides a revenue guarantee in its offer.",
+  },
+  {
+    topic: "sales",
+    prompt: "What is the typical ROI range for Nuanu projects?",
+    choices: ["2–5%", "7–10%", "10–15%", "20–25%"],
+    answer: 2,
+    explanation:
+      "Developers target ROI in the 10–15% bracket for Nuanu assets.",
+  },
+  {
+    topic: "legal",
+    prompt: "What is the difference between Freehold and Leasehold?",
+    choices: [
+      "Ownership vs. long-term rental",
+      "Apartment vs. villa",
+      "Old vs. new",
+      "Land vs. building",
+    ],
+    answer: 0,
+    explanation:
+      "Freehold implies full ownership, while Leasehold is a long-term rental agreement.",
+  },
+  {
+    topic: "legal",
+    prompt: "Can foreigners buy a villa in Bali?",
+    choices: [
+      "No",
+      "Yes, through PT PMA or leasehold",
+      "Only through locals",
+      "Only cash",
+    ],
+    answer: 1,
+    explanation:
+      "Foreigners can acquire villas through PT PMA or leasehold agreements.",
+  },
+  {
+    topic: "legal",
+    prompt: "Is leasehold extension guaranteed?",
+    choices: [
+      "Always guaranteed",
+      "Never guaranteed",
+      "Only if agreed with landowner",
+      "Only with government approval",
+    ],
+    answer: 2,
+    explanation:
+      "Leasehold extensions are not guaranteed and depend on mutual agreement.",
+  },
+  {
+    topic: "legal",
+    prompt: "What does “Yellow Zone” mean?",
+    choices: [
+      "Protected forest",
+      "Residential construction allowed",
+      "Tourism only",
+      "Agricultural",
+    ],
+    answer: 1,
+    explanation:
+      "A Yellow Zone designates land suitable for residential development.",
+  },
+  {
+    topic: "taxes",
+    prompt: "Which taxes should buyers expect when buying in freehold ?",
+    choices: ["VAT 10% + BPHTB 5%", "Only VAT", "Only BPHTB", "No taxes"],
+    answer: 0,
+    explanation:
+      "Freehold property buyers are subject to 10% VAT and 5% BPHTB.",
+  },
+  {
+    topic: "taxes",
+    prompt: "How long is the leasehold for Black Sands Oasis?",
+    choices: ["25 years", "27 years", "35 years", "40 years"],
+    answer: 2,
+    explanation: "Black Sands Oasis is sold with a 35-year leasehold term.",
+  },
+  {
+    topic: "communication",
+    prompt: "What is the first thing you say when greeting a visitor?",
+    choices: [
+      "Hello and welcome, my name is ..",
+      "Are you buying?",
+      "Hi, sit down.",
+      "Wait one second.",
+    ],
+    answer: 0,
+    explanation:
+      "A warm and professional greeting sets a positive tone for the interaction.",
+  },
+  {
+    topic: "communication",
+    prompt: "How do you offer refreshments?",
+    choices: [
+      "Would you like something cold to drink?",
+      "Do you want water?",
+      "We don’t have drinks.",
+      "Nothing for you today.",
+    ],
+    answer: 0,
+    explanation:
+      "Offering refreshments politely enhances the visitor's experience.",
+  },
+  {
+    topic: "communication",
+    prompt: "What question helps you learn about the visitor’s purpose?",
+    choices: [
+      "Where are you from?",
+      "How much money do you have?",
+      "Are you an investor?",
+      "Do you like Bali?",
+    ],
+    answer: 2,
+    explanation:
+      "Directly inquiring about their investment interest helps tailor the conversation.",
+  },
+  {
+    topic: "communication",
+    prompt: "How do you introduce real estate options?",
+    choices: [
+      "We have some interesting properties available.",
+      "You can’t buy anything here.",
+      "Ask someone else.",
+      "No options available.",
+    ],
+    answer: 0,
+    explanation:
+      "Introducing options positively encourages further discussion and engagement.",
+  },
+  {
+    topic: "communication",
+    prompt: "How do you offer a Real Estate Tour?",
+    choices: [
+      "We can arrange a tour with our sales manager if you’d like.",
+      "Go see it yourself.",
+      "No tours today.",
+      "It’s too far.",
+    ],
+    answer: 0,
+    explanation:
+      "Offering a guided tour with a sales manager provides expert insights and a personalized experience.",
+  },
+  {
+    topic: "communication",
+    prompt: "What key information must be collected from a lead?",
+    choices: [
+      "Name, phone number, budget, corner",
+      "Only name",
+      "Only phone",
+      "Only nationality",
+    ],
+    answer: 0,
+    explanation:
+      "Collecting comprehensive details helps qualify leads and facilitates effective follow-up.",
+  },
+  {
+    topic: "communication",
+    prompt: "Why is collecting the phone number important?",
+    choices: [
+      "To follow up by sales manager",
+      "For statistics only",
+      "Not important",
+      "For WhatsApp group",
+    ],
+    answer: 0,
+    explanation:
+      "Phone numbers are crucial for direct communication and effective follow-up by the sales team.",
+  },
+  {
+    topic: "communication",
+    prompt: "What is the most important rule for hostesses?",
+    choices: [
+      "Update the lead info on What’s App Group",
+      "Ignore unconfirmed clients",
+      "Only talk to tourists",
+      "Avoid asking questions",
+    ],
+    answer: 0,
+    explanation:
+      "Keeping lead information updated in the WhatsApp group ensures smooth handover and tracking.",
+  },
+  {
+    topic: "communication",
+    prompt: "What should you do after sending a client message?",
+    choices: [
+      "Wait for the manager’s confirmation",
+      "Message again repeatedly",
+      "Close the lead",
+      "Delete it",
+    ],
+    answer: 0,
+    explanation:
+      "Waiting for manager confirmation ensures consistency and proper lead management.",
+  },
+  {
+    topic: "communication",
+    prompt:
+      "What question should the hostess ask the client to know if he is new here ?",
+    choices: [
+      "Where you going later ?",
+      "Is it your first time in Nuanu",
+      "Where do you stay ?",
+      "What’s your phone number ?",
+    ],
+    answer: 1,
+    explanation:
+      "This question helps gauge familiarity with Nuanu and personalize the interaction.",
   },
 ];
 
@@ -1115,6 +1634,32 @@ async function ensureAssignment({ profile_id, certification_id }) {
   return inserted;
 }
 
+async function updateCertificationPoolIds() {
+  console.log("🔄 Updating certification question_pool_ids...");
+
+  const { error: hostessUpdateError } = await adminClient
+    .from("certifications")
+    .update({ question_pool_id: "33e067a4-2a37-45c5-8f18-d27e891d205f" })
+    .eq("code", "hostess-cert");
+
+  if (hostessUpdateError) {
+    console.error("Error updating hostess-cert pool_id:", hostessUpdateError);
+    throw hostessUpdateError;
+  }
+
+  const { error: salesUpdateError } = await adminClient
+    .from("certifications")
+    .update({ question_pool_id: "9e3d730b-59f2-42e9-b180-e8785c6f7a11" })
+    .eq("code", "sales-cert");
+
+  if (salesUpdateError) {
+    console.error("Error updating sales-cert pool_id:", salesUpdateError);
+    throw salesUpdateError;
+  }
+
+  console.log("✔️ Certification question_pool_ids updated.");
+}
+
 async function cleanTables() {
   console.log("🧹 Cleaning existing data...");
 
@@ -1210,6 +1755,8 @@ async function main() {
     passing_threshold: 0.7,
     duration_minutes: 25,
   });
+
+  await updateCertificationPoolIds(); // Call the new function here
 
   const salesUser = users.find((u) => u.meta.category === "sales");
   if (salesUser) {
