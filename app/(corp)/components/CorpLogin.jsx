@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useSupabaseAuth } from "../../../contexts/supabase-auth-provider";
 
 const loginCopy = {
@@ -19,6 +19,7 @@ const tabs = [
 export default function CorpLogin({ error: initialError = null }) {
   const { signIn, signUp } = useSupabaseAuth();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [mode, setMode] = useState("signin");
   const [signInEmail, setSignInEmail] = useState("");
@@ -80,7 +81,7 @@ export default function CorpLogin({ error: initialError = null }) {
       try {
         setIsSigningIn(true);
         await signIn(email, password);
-        console.log("Sign-in successful (or initiated)."); // Added log
+        router.push("/employee"); // Redirect on successful sign-in
       } catch (err) {
         setFormError(err instanceof Error ? err : new Error(String(err)));
         console.error("Sign-in failed:", err); // Added log
@@ -88,7 +89,7 @@ export default function CorpLogin({ error: initialError = null }) {
         setIsSigningIn(false);
       }
     },
-    [resetFeedback, signIn, signInEmail, signInPassword]
+    [resetFeedback, signIn, signInEmail, signInPassword, router]
   );
 
   const handleSignUp = useCallback(
@@ -117,6 +118,7 @@ export default function CorpLogin({ error: initialError = null }) {
           invitationCode: invite,
         });
 
+        router.push("/employee"); // Redirect on successful sign-up
         setMode("signin");
         setSignInEmail(email);
         setSignInPassword("");
@@ -142,6 +144,7 @@ export default function CorpLogin({ error: initialError = null }) {
       signUpInviteCode,
       signUpFirstName,
       signUpLastName,
+      router,
     ]
   );
 

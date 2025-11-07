@@ -13,37 +13,33 @@ export function useSupabaseAuth() {
 
   const signIn = useCallback(
     async (email, password) => {
-      console.log("Supabase Auth: signIn called with", { email }); // Added log
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (signInError) {
-        console.error("Supabase Auth: signIn error:", signInError); // Added log
         throw signInError;
       }
-      console.log("Supabase Auth: signIn successful."); // Added log
     },
     [supabase]
   );
 
-  const signUp = useCallback(
-    async (payload) => {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+  const signUp = useCallback(async (payload) => {
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({ error: "Registration failed" }));
-        throw new Error(data.error ?? "Registration failed");
-      }
-    },
-    []
-  );
+    if (!response.ok) {
+      const data = await response
+        .json()
+        .catch(() => ({ error: "Registration failed" }));
+      throw new Error(data.error ?? "Registration failed");
+    }
+  }, []);
 
   const signInWithOAuth = useCallback(
     async (provider) => {

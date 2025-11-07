@@ -1635,11 +1635,26 @@ async function ensureAssignment({ profile_id, certification_id }) {
 }
 
 async function updateCertificationPoolIds() {
-  console.log("🔄 Updating certification question_pool_ids...");
+  console.log("🔄 Dynamically updating certification question_pool_ids...");
+
+  // Get the actual pool_ids from the question_pools table
+  const { data: salesPool, error: salesPoolError } = await adminClient
+    .from("question_pools")
+    .select("id")
+    .eq("name", "Sales Certification Pool")
+    .single();
+  if (salesPoolError) throw salesPoolError;
+
+  const { data: hostessPool, error: hostessPoolError } = await adminClient
+    .from("question_pools")
+    .select("id")
+    .eq("name", "Hostess Certification Pool")
+    .single();
+  if (hostessPoolError) throw hostessPoolError;
 
   const { error: hostessUpdateError } = await adminClient
     .from("certifications")
-    .update({ question_pool_id: "33e067a4-2a37-45c5-8f18-d27e891d205f" })
+    .update({ question_pool_id: hostessPool.id })
     .eq("code", "hostess-cert");
 
   if (hostessUpdateError) {
@@ -1649,7 +1664,7 @@ async function updateCertificationPoolIds() {
 
   const { error: salesUpdateError } = await adminClient
     .from("certifications")
-    .update({ question_pool_id: "9e3d730b-59f2-42e9-b180-e8785c6f7a11" })
+    .update({ question_pool_id: salesPool.id })
     .eq("code", "sales-cert");
 
   if (salesUpdateError) {
@@ -1657,7 +1672,7 @@ async function updateCertificationPoolIds() {
     throw salesUpdateError;
   }
 
-  console.log("✔️ Certification question_pool_ids updated.");
+  console.log("✔️ Certification question_pool_ids dynamically updated.");
 }
 
 async function cleanTables() {
